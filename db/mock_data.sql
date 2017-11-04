@@ -4259,21 +4259,21 @@ insert into status (memberId, active, lastLogin) values (999, true, '2016-03-29 
 insert into status (memberId, active, lastLogin) values (1000, true, '2016-12-20 06:24:39');
 
 /* category */
-insert into category (id, ip_address) values (1, 'conglomeration');
-insert into category (id, ip_address) values (2, 'success');
-insert into category (id, ip_address) values (3, 'application');
-insert into category (id, ip_address) values (4, 'utilisation');
-insert into category (id, ip_address) values (5, 'capacity');
-insert into category (id, ip_address) values (6, '4th generation');
-insert into category (id, ip_address) values (7, 'Focused');
-insert into category (id, ip_address) values (8, 'matrix');
-insert into category (id, ip_address) values (9, 'human-resource');
-insert into category (id, ip_address) values (10, 'Seamless');
-insert into category (id, ip_address) values (11, 'standardization');
-insert into category (id, ip_address) values (12, 'Self-enabling');
-insert into category (id, ip_address) values (13, 'encryption');
-insert into category (id, ip_address) values (14, 'Organic');
-insert into category (id, ip_address) values (15, 'open architecture');
+insert into category (categoryId, categoryName) values (1, 'Progressive');
+insert into category (categoryId, categoryName) values (2, 'dynamic');
+insert into category (categoryId, categoryName) values (3, '6th generation');
+insert into category (categoryId, categoryName) values (4, 'toolset');
+insert into category (categoryId, categoryName) values (5, 'Visionary');
+insert into category (categoryId, categoryName) values (6, 'systemic');
+insert into category (categoryId, categoryName) values (7, 'matrix');
+insert into category (categoryId, categoryName) values (8, 'Sharable');
+insert into category (categoryId, categoryName) values (9, 'knowledge base');
+insert into category (categoryId, categoryName) values (10, 'hierarchy');
+insert into category (categoryId, categoryName) values (11, 'multimedia');
+insert into category (categoryId, categoryName) values (12, 'hybrid');
+insert into category (categoryId, categoryName) values (13, 'Organized');
+insert into category (categoryId, categoryName) values (14, 'Focused');
+insert into category (categoryId, categoryName) values (15, 'matrices');
 
 /* memberPreference */
 insert into memberPreference (memberId, categoryId, isPreferred) values (534, 15, true);
