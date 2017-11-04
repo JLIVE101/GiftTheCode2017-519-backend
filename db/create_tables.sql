@@ -59,3 +59,31 @@ CREATE TRIGGER beforeInsertStatus
 	BEFORE INSERT ON status
 	FOR EACH ROW
 	SET new.hash = uuid();
+
+CREATE TABLE category (
+	categoryId INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	categoryName VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE memberPreference (
+	memberId INT NOT NULL,
+	categoryId INT NOT NULL,
+	isPreferred TINYINT(1) NOT NULL,
+	FOREIGN KEY (memberId) REFERENCES member (memberId) ON DELETE CASCADE,
+	FOREIGN KEY (categoryId) REFERENCES category (categoryId) ON DELETE CASCADE
+);
+
+CREATE TABLE event (
+	eventId INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	eventName VARCHAR(30) NOT NULL,
+	description VARCHAR(80) NOT NULL,
+	eventBriteLink VARCHAR(80) NOT NULL
+);
+
+CREATE TABLE eventCategory (
+	eventId INT NOT NULL,
+	categoryId INT NOT NULL,
+	isRelatedCategory TINYINT(1) NOT NULL,
+	FOREIGN KEY (eventId) REFERENCES event (eventId) ON DELETE CASCADE,
+	FOREIGN KEY (categoryId) REFERENCES category (categoryId) ON DELETE CASCADE
+);
