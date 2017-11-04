@@ -2,7 +2,7 @@ var express = require('express');
 var morgan = require('morgan')
 var bodyParser = require('body-parser');
 var memberRouter = require('./routes/member');
-var config = require('./config.json');
+var config = require('./config/config.json');
 
 var app = express();
 var port = 8080;

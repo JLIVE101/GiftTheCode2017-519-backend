@@ -12,7 +12,8 @@ CREATE TABLE member (
 	email VARCHAR(60) NOT NULL,
 	membership_type INT NOT NULL,
 	birthdate DATE NOT NULL,
-	inCatchment TINYINT(1) NOT NULL DEFAULT 0
+	inCatchment TINYINT(1) NOT NULL DEFAULT 0,
+	household TINYINT(1) NOT NULL DEFAULT 0
 );
 
 CREATE TABLE login (
@@ -47,7 +48,7 @@ CREATE TABLE household (
 
 CREATE TABLE status (
 	memberId INT NOT NULL,
-	active TINYINT(1) NOT NULL DEFAULT 1,
+	active TINYINT(1) NOT NULL DEFAULT 0,
 	hash CHAR(36),
 	lastLogin DATETIME DEFAULT NOW(),
 	FOREIGN KEY (memberId) REFERENCES member(memberId) ON DELETE CASCADE
