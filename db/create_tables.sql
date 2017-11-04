@@ -20,6 +20,7 @@ perm_email TINYINT(1) NOT NULL,
 perm_mail TINYINT(1) NOT NULL,
 perm_phone TINYINT(1) NOT NULL,
 perm_solicit TINYINT(1) NOT NULL,
+perm_newsletter TINYINT(1) NOT NULL,
 FOREIGN KEY (perm_id)
         REFERENCES member (memberId)
         ON DELETE CASCADE
