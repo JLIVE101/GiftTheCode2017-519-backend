@@ -13,7 +13,8 @@ CREATE TABLE member (
 	membership_type INT NOT NULL,
 	birthdate DATE NOT NULL,
 	inCatchment TINYINT(1) NOT NULL DEFAULT 0,
-	household TINYINT(1) NOT NULL DEFAULT 0
+	household TINYINT(1) NOT NULL DEFAULT 0,
+	dateCreated DATETIME NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE login (
@@ -21,7 +22,7 @@ CREATE TABLE login (
 	password CHAR(60) BINARY NOT NULL,
 	FOREIGN KEY (memberId) 
 		REFERENCES member (memberId)
-		ON DELETE CASCADE;
+		ON DELETE CASCADE
 );
 
 CREATE TABLE permission (

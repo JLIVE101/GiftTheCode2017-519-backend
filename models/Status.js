@@ -1,8 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
     var Status = sequelize.define('Status', {
         memberId: {
-            // model: Member,
-            // key: 'memberId',
             type: DataTypes.INTEGER
         },
         active: {
@@ -22,6 +20,9 @@ module.exports = function(sequelize, DataTypes) {
         freezeTableName: true,
         tableName: 'status'
     });
+
+    // don't need Sequelize-generated id.
+    Status.removeAttribute('id');
 
     return Status;
 }

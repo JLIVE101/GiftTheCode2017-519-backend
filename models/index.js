@@ -29,5 +29,6 @@ db.Household.belongsTo(db.Member, { foreignKey: 'memberId' });
 db.Member.hasMany(db.Household, { foreignKey: '' })
 db.Permission.belongsTo(db.Member, { foreignKey: 'memberId' });
 db.Status.belongsTo(db.Member,  { foreignKey: 'memberId' });
+db.Member.hasOne(db.Status, { foreignKey: 'memberId' });
 
 module.exports = db;
