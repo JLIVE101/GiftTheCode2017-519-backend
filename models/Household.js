@@ -21,5 +21,7 @@ module.exports = function(sequelize, DataTypes) {
         tableName: 'household'
     });
 
+    Household.removeAttribute('id');   
+
     return Household;
 };

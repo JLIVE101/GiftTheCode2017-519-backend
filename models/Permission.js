@@ -17,5 +17,7 @@ module.exports = function(sequelize, DataTypes) {
         tableName: 'permission'
     });
 
+    Permission.removeAttribute('id');   
+
     return Permission;
 };

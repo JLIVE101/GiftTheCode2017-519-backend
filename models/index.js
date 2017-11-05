@@ -25,11 +25,14 @@ Object.keys(db).forEach(function(modelName) {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-db.Household.belongsTo(db.Member, { foreignKey: 'memberId' });
+db.Login.belongsTo(db.Member, { foreignKey: 'memberId' });
+db.Member.hasOne(db.Login, { foreignKey: 'memberId' });
+
+db.Household.belongsTo(db.Member, { foreignKey: 'relationshipId' });
 db.Member.hasMany(db.Household, { foreignKey: 'relationshipId' });
 
-db.Permission.belongsTo(db.Member, { foreignKey: 'memberId' });
-db.Member.hasOne(db.Permission, { foreignKey: 'permissionId' });
+db.Permission.belongsTo(db.Member, { foreignKey: 'permId' });
+db.Member.hasOne(db.Permission, { foreignKey: 'permId' });
 
 db.Status.belongsTo(db.Member,  { foreignKey: 'memberId' });
 db.Member.hasOne(db.Status, { foreignKey: 'memberId' });

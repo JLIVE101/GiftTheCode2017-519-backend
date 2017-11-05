@@ -14,5 +14,7 @@ module.exports = function(sequelize, DataTypes) {
         tableName: 'category'
     });
 
+    Category.removeAttribute('id');        
+
     return Category;
 };

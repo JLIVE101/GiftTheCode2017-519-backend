@@ -111,6 +111,33 @@ memberRouter.get('/member', function(req, res, next) {
     });
 });
 
+memberRouter.get('/member/:email', function(req, res, next) {
+    models.Member.findAll({
+        include: [
+            {model: models.Status},
+            {model: models.Login},
+            {model: models.Testimony},
+            {model: models.Permission},
+            {model: models.Household},
+            {model: models.MemberPreference},            
+        ],
+        where: {
+            email: req.params.email
+        }
+    }).then(function(member) {
+        if (member.length > 0) {
+            res.json({
+                success: true,
+                member: member
+            });
+            return;
+        }
+        res.json({
+            success: false
+        });
+    });
+});
+
 //confirm account creation
 memberRouter.get('/confirmAccount/:hash', function(req, res, next) {
     models.Member.findAll({        

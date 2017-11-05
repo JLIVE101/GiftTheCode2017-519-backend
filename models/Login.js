@@ -14,5 +14,7 @@ module.exports = function(sequelize, DataTypes) {
         tableName: 'login'
     });
 
+    Login.removeAttribute('id');    
+
     return Login;
 };

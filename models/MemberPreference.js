@@ -19,5 +19,7 @@ module.exports = function(sequelize, DataTypes) {
         tableName: 'memberpreference'
     });
 
+    MemberPreference.removeAttribute('id');        
+
     return MemberPreference;
 };

@@ -76,6 +76,8 @@ module.exports = function(sequelize, DataTypes) {
         tableName: 'member'
     });
 
+    Member.removeAttribute('id');        
+
     return Member;
 }
 
