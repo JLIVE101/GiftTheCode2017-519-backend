@@ -157,7 +157,7 @@ memberRouter.get('/confirmAccount/:hash', function(req, res, next) {
 
 var sendConfirmationEmail = function(member, hash) {
     let mailOptions = {
-        from: 'weirdvector <weirdvector@gmail.com>',
+        from: 'The 519 <giftthecode519@gmail.com>',
         to: `${member.firstName} ${member.lastName} <${member.email}>`,
         subject: 'Complete your 519.org registration', // Subject line
         html: `
