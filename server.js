@@ -2,6 +2,7 @@ var express = require('express');
 var morgan = require('morgan');
 var cors = require('cors');
 var bodyParser = require('body-parser');
+var taskRouter = require('./routes/task');
 var memberRouter = require('./routes/member');
 var config = require('./config/config.json');
 
