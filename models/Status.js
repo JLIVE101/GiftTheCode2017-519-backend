@@ -14,6 +14,10 @@ module.exports = function(sequelize, DataTypes) {
         lastLogin: {
             type: DataTypes.DATE,
             defaultValue: DataTypes.NOW
+        },
+        renewalDate: {
+            type: DataTypes.DATE,
+            defaultValue: DataTypes.NOW
         }
     }, {
         timestamps: false,

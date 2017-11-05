@@ -1,27 +1,13 @@
 module.exports = function(sequelize, DataTypes) {
     var Permission = sequelize.define('Permission', {
-        perm_id: {
-            // model: Member,
-            // key: 'memberId',
+        permId: {
             type: DataTypes.INTEGER
         },
-        perm_email: {
+        permSolicit: {
             type: DataTypes.BOOLEAN,
             allowNull: false
         },
-        perm_mail: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false
-        },
-        perm_phone: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false
-        },
-        perm_solicit: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false
-        },
-        perm_newsletter: {
+        permNewsletter: {
             type: DataTypes.BOOLEAN,
             allowNull: false
         }

@@ -1,9 +1,9 @@
 module.exports = function(sequelize, DataTypes) {  
     var Household = sequelize.define('Household', {
-        relationship_id: {
+        relationshipId: {
             type: DataTypes.INTEGER
         },
-        relationship_type: {
+        relationshipType: {
             type: DataTypes.INTEGER,
             allowNull: false
         },

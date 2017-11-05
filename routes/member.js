@@ -27,37 +27,42 @@ memberRouter.post('/save', function (req, res, next) {
         }
     });
 
-
     //save the user
-
-});
-
-memberRouter.post('/member', function(req, res, next) {
     models.Member.create({
-        streetAddress: req.body.streetAddress,
+        apartmentNumber: req.body.apartmentNumber,
+        streetNumber: req.body.streetNumber,
+        street: req.body.street,
         city: req.body.city,
-        province_state: req.body.province_state,
+        provinceState: req.body.province_state,
         country: req.body.country,
-        phone_mobile: req.body.phone_mobile,
-        phone_work: req.body.phone_work,
-        phone_home: req.body.phone_home,
+        postalCode: req.body.postalCode,
+        phone: req.body.phone,
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         email: req.body.email,
-        membership_type: req.body.membership_type,
-        birthdate: req.body.birthdate,
+        membershipType: req.body.membership_type,
+        birthDate: req.body.birthdate,
         inCatchment: req.body.inCatchment || false,
-        household: req.body.household || false
+        household: req.body.household || false,
+        dateCreated: new Date()
     }).then(function(member) {
+
+        models.Login.create({
+            memberId: member.memberId,
+            password: req.body.password
+        }).then(function(login) {  
+        }).catch(function(err) {
+            console.log('Could not create login for member');
+        });
 
         //make dependent models
         models.Permission.create({
-            perm_id: member.memberId,
-            perm_email: req.body.perm_email || false,
-            perm_mail: req.body.perm_mail || false,
-            perm_phone: req.body.perm_phone || false,
-            perm_solicit: req.body.perm_solicit || false,
-            perm_newsletter: req.body.perm_newsletter || false
+            permId: member.memberId,
+            permSolicit: req.body.permSolicit || false,
+            permNewsletter: req.body.permNewsletter || false
+        }).then(function(permission) {
+        }).catch(function(err) {
+            console.log('Could not create permission for member');
         });
 
         models.Status.create({
@@ -66,20 +71,32 @@ memberRouter.post('/member', function(req, res, next) {
             hash: uuid(),
             lastLogin: new Date()
         }).then(function(status) {
-            sendConfirmationEmail(member, status.hash);
+            let updatedMember = {
+                firstName: member.firstName,
+                lastName: member.lastName,
+                email: member.email  
+            };
+            sendConfirmationEmail(updatedMember, status.hash);
+        }).catch(function(err) {
+            console.log('Could not create status for member.') ;
         });
 
         if (member.household) {
             // assuming res.body contains array of other household members
             res.body.householdMembers.forEach(function(householdMember) {
                 models.Household.create({
-                    relationship_id: member.memberId,
-                    relationship_type: householdMember.relationship_type,
+                    relationshipId: member.memberId,
+                    relationshipType: householdMember.relationship_type,
                     firstName: householdMember.firstName,
                     lastName: householdMember.lastName
+                }).then(function(member) {
+                }).catch(function(err) {
+                    console.log('Could not create household member for member.');                    
                 });
             });
         }
+
+        // TODO: MemberPreference 
 
         res.json(member);
     });
@@ -96,9 +113,6 @@ memberRouter.get('/member', function(req, res, next) {
 
 //confirm account creation
 memberRouter.get('/confirmAccount/:hash', function(req, res, next) {
-
-    console.log('params: ', req.params);
-
     models.Member.findAll({        
         include: [{
             model: models.Status,
@@ -131,16 +145,7 @@ memberRouter.get('/confirmAccount/:hash', function(req, res, next) {
                 hash: status.Status.dataValues.hash
             }
         }).then(function(member) {
-            let updatedMember = {
-                firstName: status.firstName,
-                lastName: status.lastName,
-                email: status.email  
-            };
-            sendConfirmationEmail(updatedMember, req.params.hash);
-
-            res.json({
-                success: true
-            });
+            res.redirect(302, '/home');
         });
     }).catch(function(err) {
 

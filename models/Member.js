@@ -4,31 +4,34 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             primaryKey: true
         },
-        streetAddress: {
-            type: DataTypes.STRING(60),
+        apartmentNumber: {
+            type: DataTypes.STRING(10),
+            allowNull: true
+        },
+        streetNumber: {
+            type: DataTypes.STRING(10),
             allowNull: false
+        },
+        street: {
+            type: DataTypes.STRING(50)
         },
         city: {
             type: DataTypes.STRING(30),
             allowNull: false
         },
-        province_state: {
-            type: DataTypes.STRING(20),
+        provinceState: {
+            type: DataTypes.STRING(2),
             allowNull: false
         },
         country: {
             type: DataTypes.STRING(50),
             allowNull: false
         },
-        phone_mobile: {
+        postalCode: {
             type: DataTypes.STRING(10),
             allowNull: false
         },
-        phone_home: {
-            type: DataTypes.STRING(10),
-            allowNull: false
-        },
-        phone_work: {
+        phone: {
             type: DataTypes.STRING(10),
             allowNull: false
         }, 
@@ -44,13 +47,13 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.STRING(60),
             allowNull: false
         },
-        membership_type: {
+        membershipType: {
             type: DataTypes.INTEGER,
             allowNull: false
         },
-        birthdate: {
+        birthDate: {
             type: DataTypes.DATE,
-            allowNull: false
+            allowNull: true
         },
         inCatchment: {
             type: DataTypes.BOOLEAN,
@@ -61,6 +64,11 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: false
+        },
+        dateCreated: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            defaultValue: new Date()
         }
     }, {
         timestamps: false,

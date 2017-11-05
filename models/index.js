@@ -26,9 +26,25 @@ db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 db.Household.belongsTo(db.Member, { foreignKey: 'memberId' });
-db.Member.hasMany(db.Household, { foreignKey: '' })
+db.Member.hasMany(db.Household, { foreignKey: 'relationshipId' });
+
 db.Permission.belongsTo(db.Member, { foreignKey: 'memberId' });
+db.Member.hasOne(db.Permission, { foreignKey: 'permissionId' });
+
 db.Status.belongsTo(db.Member,  { foreignKey: 'memberId' });
 db.Member.hasOne(db.Status, { foreignKey: 'memberId' });
+
+db.Event.hasMany(db.EventCategory, { foreignKey: 'eventId' });
+db.Category.hasMany(db.EventCategory, { foreignKey: 'categoryId' });
+db.EventCategory.belongsTo(db.Event, { foreignKey: 'eventId' });
+db.EventCategory.belongsTo(db.Category, { foreignKey: 'categoryId' });
+
+db.Category.hasMany(db.MemberPreference, { foreignKey: 'categoryId' });
+db.Member.hasMany(db.MemberPreference, { foreignKey: 'memberId' });
+db.MemberPreference.belongsTo(db.Member, { foreignKey: 'memberId' });
+db.MemberPreference.belongsTo(db.Category, { foreignKey: 'categoryId' });
+
+db.Testimony.belongsTo(db.Member, { foreignKey: 'memberId' });
+db.Member.hasOne(db.Testimony, { foreignKey: 'memberId' });
 
 module.exports = db;

@@ -1,20 +1,27 @@
 CREATE TABLE member (
 	memberId INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-	streetAddress VARCHAR(60) NOT NULL,
+	apartmentNumber VARCHAR(10),
+	streetNumber VARCHAR(10) NOT NULL,
+	street VARCHAR(50) NOT NULL,
 	city VARCHAR(30) NOT NULL,
-	province_state VARCHAR(20) NOT NULL,
+	provinceState CHAR(2) NOT NULL,
 	country VARCHAR(50) NOT NULL,
-	phone_mobile VARCHAR(10) NOT NULL,
-	phone_home VARCHAR(10) NOT NULL,
-	phone_work VARCHAR(10) NOT NULL,
+	postalCode VARCHAR(10) NOT NULL,
+	phone VARCHAR(10) NOT NULL,
 	firstName VARCHAR(50) NOT NULL,
 	lastName VARCHAR(50) NOT NULL,
 	email VARCHAR(60) NOT NULL,
-	membership_type INT NOT NULL,
-	birthdate DATE NOT NULL,
+	membershipType INT NOT NULL,
+	birthDate DATE,
 	inCatchment TINYINT(1) NOT NULL DEFAULT 0,
 	household TINYINT(1) NOT NULL DEFAULT 0,
 	dateCreated DATETIME NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE testimony (
+	memberId INT NOT NULL,
+	testimony MEDIUMTEXT NOT NULL,
+	FOREIGN KEY (memberId) REFERENCES member(memberId) ON DELETE CASCADE
 );
 
 CREATE TABLE login (
@@ -26,23 +33,20 @@ CREATE TABLE login (
 );
 
 CREATE TABLE permission (
-	perm_id INT NOT NULL,
-	perm_email TINYINT(1) NOT NULL,
-	perm_mail TINYINT(1) NOT NULL,
-	perm_phone TINYINT(1) NOT NULL,
-	perm_solicit TINYINT(1) NOT NULL,
-	perm_newsletter TINYINT(1) NOT NULL,
-	FOREIGN KEY (perm_id)
+	permId INT NOT NULL,
+	permSolicit TINYINT(1) NOT NULL,
+	permNewsletter TINYINT(1) NOT NULL,
+	FOREIGN KEY (permId)
 			REFERENCES member (memberId)
 			ON DELETE CASCADE
 );
 
 CREATE TABLE household (
-	relationship_id INT NOT NULL,
-	relationship_type INT NOT NULL,
+	relationshipId INT NOT NULL,
+	relationshipType INT NOT NULL,
 	firstName VARCHAR(50) NOT NULL,
 	lastName VARCHAR(50) NOT NULL,
-	FOREIGN KEY (relationship_id)
+	FOREIGN KEY (relationshipId)
 			REFERENCES member (memberId)
 			ON DELETE CASCADE
 );
@@ -52,6 +56,7 @@ CREATE TABLE status (
 	active TINYINT(1) NOT NULL DEFAULT 0,
 	hash CHAR(36),
 	lastLogin DATETIME DEFAULT NOW(),
+	renewalDate DATETIME DEFAULT NOW(),
 	FOREIGN KEY (memberId) REFERENCES member(memberId) ON DELETE CASCADE
 );
 
@@ -77,7 +82,7 @@ CREATE TABLE event (
 	eventId INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
 	eventName VARCHAR(30) NOT NULL,
 	description VARCHAR(80) NOT NULL,
-	eventBriteLink VARCHAR(80) NOT NULL
+	eventBriteLink VARCHAR(80)
 );
 
 CREATE TABLE eventCategory (
