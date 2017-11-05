@@ -124,62 +124,167 @@ memberRouter.post('/save', function (req, res, next) {
 //     });
 // });
 
-// TODO: update member route. Out of scope for hackathon :/
-// memberRouter.put('/member/:email', function(req, res, next) {
+// Update member
+memberRouter.put('/member', function(req, res, next) {
 
-//     let body = req.body;
+    let body = req.body;
 
+    models.Member.find({
+        where: {
+            email: body.email
+        }
+    }).then(function(currentMember) {
+        if (!currentMember) {
+            res.json({
+                success: false
+            });
+            return;
+        }
+
+        console.log(currentMember);
+
+        currentMember.apartmentNumber = body.aptNumber || currentMember.apartmentNumber;
+        currentMember.streetNumber = body.streetNumber || currentMember.streetNumber;
+        currentMember.street = body.streetAddress || currentMember.street;
+        currentMember.city = body.city || currentMember.city;
+        currentMember.provinceState = body.province || currentMember.provinceState;
+        currentMember.country = body.country || currentMember.country;
+        currentMember.postalCode = body.postalCode || currentMember.postalCode;
+        currentMember.firstName = body.firstName || currentMember.firstName;
+        currentMember.lastName = body.lastName || currentMember.lastName;
+        currentMember.birthdate = body.birthdate ? new Date(body.birthdate) : currentMember.birthDate;
+        currentMember.inCatchment = body.withinCatchmentArea || currentMember.inCatchment;
+
+        currentMember.save().then(function(saved) {
+            }).catch(function(error) {
+                console.log('Error updating members.');
+            });
+
+        models.Testimony.find({
+            where: {
+                memberId: currentMember.memberId
+            }
+        }).then(function(testimony) {
+            testimony.testimony = body.testimony;
+            testimony.save().then(function(saved) {
+                }).catch(function(err) {
+                    console.log('Error updating testimony');
+                });
+        }).catch(function(err) {
+            console.log('Error getting testimony');
+        });
+
+        models.Status.find({
+            where: {
+                memberId: currentMember.memberId
+            }
+        }).then(function(status) {
+            status.active = true,
+            status.renewalDate = new Date();
+
+            status.save().then(function(saved) {
+            }).catch(function(err) {
+                console.log('Could not update user status');
+            });
+
+        }).catch(function(err) {
+            console.log('Error getting status');
+        });
+
+        models.Permission.find({
+            where: {
+                permId: currentMember.memberId
+            }
+        }).then(function(permission) {
+            permission.permSolicit = body.permissionForSoliciting;
+            permission.permNewsletter = body.permissionForNewsletter;
+
+            permission.save().then(function(saved) {
+            }).catch(function(err) {
+                console.log('Could not update permission.');
+            });
+        });
+    });
+
+    res.json(member);
+});
+
+// memberRouter.get('/member/:email', function(req, res, next) {
 //     models.Member.findAll({
+//         include: [
+//             {model: models.Status},
+//             {model: models.Login},
+//             {model: models.Testimony},
+//             {model: models.Permission},
+//             {model: models.Household},
+//             {model: models.MemberPreference},            
+//         ],
 //         where: {
 //             email: req.params.email
 //         }
-//     }).then(function(currentMember) {
-//         if (currentMember.length == 0) {
+//     }).then(function(member) {
+//         if (member.length > 0) {
 //             res.json({
-//                 success: false
+//                 success: true,
+//                 member: member
 //             });
+//             return;
 //         }
-
-//         currentMember.apartmentNumber = body.aptNumber || current.apartmentNumber;
-//         currentMember.streetNumber = body.streetNumber || currentMember.streetNumber;
-//         currentMember.street = body.streetAddress || currentMember.street;
-//         currentMember.city = body.city || currentMember.city;
-//         currentMember.provinceState = body.province || currentMember.provinceState;
-//         currentMember.country = body.country || currentMember.country;
-//         currentMember.postalCode = body.postalCode || currentMember.postalCode;
-//         currentMember.firstName = body.firstName || currentMember.firstName;
-//         currentMember.lastName = body.lastName || currentMember.lastName;
-//         currentMember.birthdate = body.birthdate ? new Date(body.birthdate) : currentMember.birthDate;
-//         currentMember.inCatchment = body.withinCatchmentArea || currentMember.inCatchment;
+//         res.json({
+//             success: false
+//         });
 //     });
-
-//     res.json(member);
 // });
 
-memberRouter.get('/member/:email', function(req, res, next) {
-    models.Member.findAll({
+memberRouter.post('/login', function(req, res, next) {
+    let body = req.body;
+
+    if (!body.email || !body.password) {
+        res.json({
+            success: false
+        });
+        return;
+    }
+
+    //TODO: passwords should be hashed
+    models.Member.find({
         include: [
             {model: models.Status},
-            {model: models.Login},
+            {model: models.Login,
+            where: {
+                password: body.password
+            }},
             {model: models.Testimony},
             {model: models.Permission},
             {model: models.Household},
             {model: models.MemberPreference},            
         ],
         where: {
-            email: req.params.email
+            email: body.email
         }
     }).then(function(member) {
-        if (member.length > 0) {
-            res.json({
-                success: true,
-                member: member
+        
+        models.Status.find({
+            where: {
+                memberId: member.memberId
+            }
+        }).then(function(status) {
+
+            console.log(status);
+
+            status.lastLogin = new Date();
+            status.save().then(function(saved) {
+            }).catch(function(error) {
+                console.log('Could not update user last login date.');
             });
-            return;
-        }
+        })
+
         res.json({
-            success: false
+            success: true,
+            member: member
         });
+        return;
+        
     });
 });
 
