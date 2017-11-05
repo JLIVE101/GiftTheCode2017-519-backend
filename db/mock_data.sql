@@ -7532,3 +7532,16 @@ insert into testimony (memberId, testimony) values (997, 'VAWHC34KI22G8S6QB53EQL
 insert into testimony (memberId, testimony) values (998, '3RPNB42INRBRR9852I8XSTFBEVKLE5MNBOVY3R70Z0ZU52ZOGQNPBJ2DNIZT1AQII6F0ESW6KWABEMCGNE6165WOKU9ANK75TSWWWZW6HKB4B0VV6GVTW8');
 insert into testimony (memberId, testimony) values (999, '7AHZ1976WPIXATO2J0RQLUVU6VY4YIK4VCWD3K2JJLIA4IXA3QH0YBFA0H3TYRZF0LNVPHJS2XOF3IUFMA0P3MGJQM87A76E3AHIEONSRQIQIVLS33Y2AS');
 insert into testimony (memberId, testimony) values (1000, 'ARB4WHUXA628MUSIYPW47VTBRFWY0NIVNT6PZR9FMOHQN2OS0BMKHHQ9ISWJXN4E8OZLOZ3YNZXR3DXZ4AB4491FGGZ3F7KW2BO0IKP4S64ICSVWX5YY9N');
+
+
+UPDATE `gtc`.`category` SET `categoryName`='Newcome & Settlement Services' WHERE `categoryId`='1';
+UPDATE `gtc`.`category` SET `categoryName`='Queer and Trans Family Events' WHERE `categoryId`='2';
+UPDATE `gtc`.`category` SET `categoryName`='Family Resource Centre Drop-In Programs' WHERE `categoryId`='3';
+UPDATE `gtc`.`category` SET `categoryName`='Older LGBTQ Drop-In' WHERE `categoryId`='4';
+UPDATE `gtc`.`category` SET `categoryName`='Housing Support for LGBTQ Youth' WHERE `categoryId`='5';
+UPDATE `gtc`.`category` SET `categoryName`='Trans Youth Programs' WHERE `categoryId`='6';
+UPDATE `gtc`.`category` SET `categoryName`='Meal Trans' WHERE `categoryId`='7';
+UPDATE `gtc`.`category` SET `categoryName`='Sunday Drop-In' WHERE `categoryId`='8';
+UPDATE `gtc`.`category` SET `categoryName`='Volunteering at The 519' WHERE `categoryId`='9';
+UPDATE `gtc`.`category` SET `categoryName`='Green Space Festival' WHERE `categoryId`='10';
+UPDATE `gtc`.`category` SET `categoryName`='Special Events at The 519' WHERE `categoryId`='11';

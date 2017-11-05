@@ -80,8 +80,8 @@ CREATE TABLE memberPreference (
 
 CREATE TABLE event (
 	eventId INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-	eventName VARCHAR(55) NOT NULL,
-	description VARCHAR(80) NOT NULL,
+	eventName VARCHAR(100) NOT NULL,
+	description VARCHAR(100) NOT NULL,
 	eventBriteLink VARCHAR(80)
 );
 
