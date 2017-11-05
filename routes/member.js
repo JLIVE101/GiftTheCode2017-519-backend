@@ -15,6 +15,7 @@ var googleMapsClient = require('@google/maps').createClient({
 memberRouter.post('/save', function (req, res, next) {
 
     var body = req.body;
+    // TODO: might need to JSON.parse(body); 
 
     //validate member object
 
@@ -22,34 +23,34 @@ memberRouter.post('/save', function (req, res, next) {
     googleMapsClient.geocode({
         address: 'The 519 Catchment Area'
     }, function (err, response) {
-        if (!err) {
-            res.send(response);
+        if (err) {
+            console.log('Error finding catchment area.');
         }
     });
 
     //save the user
     models.Member.create({
-        apartmentNumber: req.body.apartmentNumber,
-        streetNumber: req.body.streetNumber,
-        street: req.body.street,
-        city: req.body.city,
-        provinceState: req.body.province_state,
-        country: req.body.country,
-        postalCode: req.body.postalCode,
-        phone: req.body.phone,
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        membershipType: req.body.membership_type,
-        birthDate: req.body.birthdate,
-        inCatchment: req.body.inCatchment || false,
-        household: req.body.household || false,
+        apartmentNumber: body.aptNumber,
+        streetNumber: body.streetNumber,
+        street: body.streetAddress,
+        city: body.city,
+        provinceState: body.province,
+        country: body.country,
+        postalCode: body.postalcode,
+        phone: body.preferredPhone,
+        firstName: body.firstName,
+        lastName: body.lastName,
+        email: body.email,
+        membershipType: getMembershipType(body.status),
+        birthDate: new Date(body.birthdate),
+        inCatchment: body.withinCatchmentArea || false,
+        household: body.status.toLowerCase() == 'household',
         dateCreated: new Date()
     }).then(function(member) {
 
         models.Login.create({
             memberId: member.memberId,
-            password: req.body.password
+            password: body.password
         }).then(function(login) {  
         }).catch(function(err) {
             console.log('Could not create login for member');
@@ -58,8 +59,8 @@ memberRouter.post('/save', function (req, res, next) {
         //make dependent models
         models.Permission.create({
             permId: member.memberId,
-            permSolicit: req.body.permSolicit || false,
-            permNewsletter: req.body.permNewsletter || false
+            permSolicit: body.permissionForSoliciting || false,
+            permNewsletter: body.permissionForNewsletter || false
         }).then(function(permission) {
         }).catch(function(err) {
             console.log('Could not create permission for member');
@@ -81,35 +82,79 @@ memberRouter.post('/save', function (req, res, next) {
             console.log('Could not create status for member.') ;
         });
 
-        if (member.household) {
+        // TODO: extra logic for household members
+        // if (member.household) {
             // assuming res.body contains array of other household members
-            res.body.householdMembers.forEach(function(householdMember) {
-                models.Household.create({
-                    relationshipId: member.memberId,
-                    relationshipType: householdMember.relationship_type,
-                    firstName: householdMember.firstName,
-                    lastName: householdMember.lastName
-                }).then(function(member) {
-                }).catch(function(err) {
-                    console.log('Could not create household member for member.');                    
-                });
-            });
-        }
+            // body.householdMembers.forEach(function(householdMember) {
+            //     models.Household.create({
+            //         relationshipId: member.memberId,
+            //         relationshipType: householdMember.relationship_type,
+            //         firstName: householdMember.firstName,
+            //         lastName: householdMember.lastName
+            //     }).then(function(member) {
+            //     }).catch(function(err) {
+            //         console.log('Could not create household member for member.');                    
+            //     });
+            // });
+        // }
 
-        // TODO: MemberPreference 
+        models.Testimony.create({
+            memberId: member.memberId,
+            testimony: body.testimony
+        });
+
+        body.programs.forEach(function(program) {
+            models.MemberPreference.create({
+                memberId: member.memberId,
+                categoryId: program.id,
+                isPreferred: true
+            });
+        });
 
         res.json(member);
     });
 });
 
 // delete this route later! Just here to test Sequelize.
-memberRouter.get('/member', function(req, res, next) {
-    models.Member.findAll({
+// memberRouter.get('/member', function(req, res, next) {
+//     models.Member.findAll({
 
-    }).then(function(members) {
-        res.json(members);
-    });
-});
+//     }).then(function(members) {
+//         res.json(members);
+//     });
+// });
+
+// TODO: update member route. Out of scope for hackathon :/
+// memberRouter.put('/member/:email', function(req, res, next) {
+
+//     let body = req.body;
+
+//     models.Member.findAll({
+//         where: {
+//             email: req.params.email
+//         }
+//     }).then(function(currentMember) {
+//         if (currentMember.length == 0) {
+//             res.json({
+//                 success: false
+//             });
+//         }
+
+//         currentMember.apartmentNumber = body.aptNumber || current.apartmentNumber;
+//         currentMember.streetNumber = body.streetNumber || currentMember.streetNumber;
+//         currentMember.street = body.streetAddress || currentMember.street;
+//         currentMember.city = body.city || currentMember.city;
+//         currentMember.provinceState = body.province || currentMember.provinceState;
+//         currentMember.country = body.country || currentMember.country;
+//         currentMember.postalCode = body.postalCode || currentMember.postalCode;
+//         currentMember.firstName = body.firstName || currentMember.firstName;
+//         currentMember.lastName = body.lastName || currentMember.lastName;
+//         currentMember.birthdate = body.birthdate ? new Date(body.birthdate) : currentMember.birthDate;
+//         currentMember.inCatchment = body.withinCatchmentArea || currentMember.inCatchment;
+//     });
+
+//     res.json(member);
+// });
 
 memberRouter.get('/member/:email', function(req, res, next) {
     models.Member.findAll({
@@ -172,7 +217,7 @@ memberRouter.get('/confirmAccount/:hash', function(req, res, next) {
                 hash: status.Status.dataValues.hash
             }
         }).then(function(member) {
-            res.redirect(302, '/home');
+            res.redirect(302, '/home'); // TODO: redirect to landing page
         });
     }).catch(function(err) {
 
@@ -187,6 +232,15 @@ memberRouter.get('/confirmAccount/:hash', function(req, res, next) {
 
 // TODO: reset password route
 
+var getMembershipType = function(type) {
+    switch (type.toLowerCase()) {
+        case "individual":
+            return 0;
+        case "household":
+            return 1;
+    }
+}
+
 var sendConfirmationEmail = function(member, hash) {
     let mailOptions = {
         from: 'The 519 <giftthecode519@gmail.com>',
@@ -199,6 +253,8 @@ var sendConfirmationEmail = function(member, hash) {
 <small>Please do not reply to this email.</small>
         `
     };
+
+    console.log(mailOptions);
     sendEmail(mailOptions);
 }
 

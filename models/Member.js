@@ -2,7 +2,8 @@ module.exports = function(sequelize, DataTypes) {
     var Member = sequelize.define('Member', {
         memberId: {
             type: DataTypes.INTEGER,
-            primaryKey: true
+            primaryKey: true,
+            autoIncrement: true            
         },
         apartmentNumber: {
             type: DataTypes.STRING(10),
