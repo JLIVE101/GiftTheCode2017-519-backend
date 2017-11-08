@@ -2,22 +2,22 @@ var express = require('express');
 var uuid = require('uuid');
 var nodemailer = require('nodemailer');
 var dotenv = require('dotenv');
+var jwt = require('jsonwebtoken');
 var Member = require('../models/member');
 var config = require('../config/config.json');
 var memberRouter = express.Router();
 var models = require('../models');
+var tokenValidator = require('./tokenValidator');
 
 var googleMapsClient = require('@google/maps').createClient({
     key: config.GOOGLEMAPS_API_KEY
 });
 
-
+// Add a new member
 memberRouter.post('/save', function (req, res, next) {
-
     var body = req.body;
-    // TODO: might need to JSON.parse(body); 
 
-    //validate member object
+    // TODO: validate member object
 
     //triangulate location to set flag// Geocode an address.
     googleMapsClient.geocode({
@@ -125,8 +125,7 @@ memberRouter.post('/save', function (req, res, next) {
 // });
 
 // Update member
-memberRouter.put('/member', function(req, res, next) {
-
+memberRouter.put('/member', [tokenValidator, function(req, res, next) {
     let body = req.body;
 
     models.Member.find({
@@ -204,37 +203,37 @@ memberRouter.put('/member', function(req, res, next) {
                 console.log('Could not update permission.');
             });
         });
+        res.json(currentMember);
     });
+}]);
 
-    res.json(member);
-});
+// Get individual member
+memberRouter.get('/member/:email', [tokenValidator, function(req, res, next) {
+    models.Member.find({
+        include: [
+            {model: models.Status},
+            {model: models.Login},
+            {model: models.Testimony},
+            {model: models.Permission},
+            {model: models.Household},
+            {model: models.MemberPreference},            
+        ],
+        where: {
+            email: req.params.email
+        }
+    }).then(function(member) {
 
-// memberRouter.get('/member/:email', function(req, res, next) {
-//     models.Member.findAll({
-//         include: [
-//             {model: models.Status},
-//             {model: models.Login},
-//             {model: models.Testimony},
-//             {model: models.Permission},
-//             {model: models.Household},
-//             {model: models.MemberPreference},            
-//         ],
-//         where: {
-//             email: req.params.email
-//         }
-//     }).then(function(member) {
-//         if (member.length > 0) {
-//             res.json({
-//                 success: true,
-//                 member: member
-//             });
-//             return;
-//         }
-//         res.json({
-//             success: false
-//         });
-//     });
-// });
+        res.json({
+            success: true,
+            member: member
+        });
+        return;
+
+        res.json({
+            success: false
+        });
+    });
+}]);
 
 memberRouter.post('/login', function(req, res, next) {
     let body = req.body;
@@ -261,9 +260,10 @@ memberRouter.post('/login', function(req, res, next) {
         ],
         where: {
             email: body.email
-        }
+        },
+        raw: true
     }).then(function(member) {
-        
+
         models.Status.find({
             where: {
                 memberId: member.memberId
@@ -279,9 +279,13 @@ memberRouter.post('/login', function(req, res, next) {
             });
         })
 
+        let token = jwt.sign(member, config.tokenSecret, {
+            expiresIn: '1h'
+        });
+
         res.json({
             success: true,
-            member: member
+            token: token
         });
         return;
         
