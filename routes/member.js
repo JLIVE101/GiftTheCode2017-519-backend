@@ -9,6 +9,10 @@ var memberRouter = express.Router();
 var models = require('../models');
 var tokenValidator = require('./tokenValidator');
 
+// password hashing
+var bcrypt = require('bcrypt');
+var saltRounds = 10;
+
 var googleMapsClient = require('@google/maps').createClient({
     key: config.GOOGLEMAPS_API_KEY
 });
@@ -48,14 +52,18 @@ memberRouter.post('/save', function (req, res, next) {
         dateCreated: new Date()
     }).then(function(member) {
 
-        models.Login.create({
-            memberId: member.memberId,
-            password: body.password
-        }).then(function(login) {  
-        }).catch(function(err) {
-            console.log('Could not create login for member');
-        });
-
+        bcrypt.genSalt(saltRounds, function(err, salt) {
+            bcrypt.hash(body.password, salt, function(err, hash) {
+                models.Login.create({
+                    memberId: member.memberId,
+                    password: hash
+                }).then(function(login) {  
+                }).catch(function(err) {
+                    console.log('Could not create login for member');
+                });        
+            });
+        })
+        
         //make dependent models
         models.Permission.create({
             permId: member.memberId,
@@ -208,18 +216,17 @@ memberRouter.put('/member', [tokenValidator, function(req, res, next) {
 }]);
 
 // Get individual member
-memberRouter.get('/member/:email', [tokenValidator, function(req, res, next) {
+memberRouter.get('/member', [tokenValidator, function(req, res, next) {
     models.Member.find({
         include: [
             {model: models.Status},
-            {model: models.Login},
             {model: models.Testimony},
             {model: models.Permission},
             {model: models.Household},
-            {model: models.MemberPreference},            
+            {model: models.MemberPreference},
         ],
         where: {
-            email: req.params.email
+            email: req.decoded.email
         }
     }).then(function(member) {
 
@@ -245,14 +252,10 @@ memberRouter.post('/login', function(req, res, next) {
         return;
     }
 
-    //TODO: passwords should be hashed
     models.Member.find({
         include: [
             {model: models.Status},
-            {model: models.Login,
-            where: {
-                password: body.password
-            }},
+            {model: models.Login},
             {model: models.Testimony},
             {model: models.Permission},
             {model: models.Household},
@@ -263,6 +266,20 @@ memberRouter.post('/login', function(req, res, next) {
         },
         raw: true
     }).then(function(member) {
+
+        console.log('Member structure', member);
+
+        bcrypt.compare(body.password, member['Login.password'], function(err, res) {
+            if (err) {
+                throw err;
+            }
+
+            if (!res) {
+                return res.json({
+                    success: false
+                });
+            }
+        });
 
         models.Status.find({
             where: {
@@ -277,7 +294,10 @@ memberRouter.post('/login', function(req, res, next) {
             }).catch(function(error) {
                 console.log('Could not update user last login date.');
             });
-        })
+        });
+
+        // remove login information before creating token.
+        delete member['Login.password'];
 
         let token = jwt.sign(member, config.tokenSecret, {
             expiresIn: '1h'
