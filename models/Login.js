@@ -7,6 +7,10 @@ module.exports = function(sequelize, DataTypes) {
         password: {
             type: DataTypes.STRING(60),
             allowNull: false
+        },
+        resetHash: {
+            type: DataTypes.UUID,
+            allowNull: true
         }
     }, {
         timestamps: false,

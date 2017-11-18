@@ -10,7 +10,7 @@ CREATE TABLE member (
 	phone VARCHAR(10) NOT NULL,
 	firstName VARCHAR(50) NOT NULL,
 	lastName VARCHAR(50) NOT NULL,
-	email VARCHAR(60) NOT NULL,
+	email VARCHAR(60) NOT NULL UNIQUE,
 	membershipType INT NOT NULL,
 	birthDate DATE,
 	inCatchment TINYINT(1) NOT NULL DEFAULT 0,
@@ -27,6 +27,7 @@ CREATE TABLE testimony (
 CREATE TABLE login (
 	memberId INT NOT NULL,
 	password CHAR(60) BINARY NOT NULL,
+	resetHash CHAR(36) DEFAULT '00000000-0000-0000-0000-000000000000', 
 	FOREIGN KEY (memberId) 
 		REFERENCES member (memberId)
 		ON DELETE CASCADE

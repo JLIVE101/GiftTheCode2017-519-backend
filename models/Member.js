@@ -46,7 +46,8 @@ module.exports = function(sequelize, DataTypes) {
         },
         email: {
             type: DataTypes.STRING(60),
-            allowNull: false
+            allowNull: false,
+            unique: true
         },
         membershipType: {
             type: DataTypes.INTEGER,

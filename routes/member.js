@@ -267,48 +267,42 @@ memberRouter.post('/login', function(req, res, next) {
         raw: true
     }).then(function(member) {
 
-        console.log('Member structure', member);
-
-        bcrypt.compare(body.password, member['Login.password'], function(err, res) {
+        bcrypt.compare(body.password, member['Login.password'], function(err, comparison) {
             if (err) {
                 throw err;
             }
 
-            if (!res) {
+            if (comparison) {
+                models.Status.find({
+                    where: {
+                        memberId: member.memberId
+                    }
+                }).then(function(status) {       
+                    status.lastLogin = new Date();
+                    status.save().then(function(saved) {
+                    }).catch(function(error) {
+                        console.log('Could not update user last login date.');
+                    });
+                });
+        
+                // remove login information before creating token.
+                delete member['Login.password'];
+        
+                let token = jwt.sign(member, config.tokenSecret, {
+                    expiresIn: '1h'
+                });
+        
                 return res.json({
-                    success: false
+                    success: true,
+                    token: token
+                });        
+            } else {
+                return res.json({
+                    success: false,
+                    message: 'Invalid credentials'
                 });
             }
         });
-
-        models.Status.find({
-            where: {
-                memberId: member.memberId
-            }
-        }).then(function(status) {
-
-            console.log(status);
-
-            status.lastLogin = new Date();
-            status.save().then(function(saved) {
-            }).catch(function(error) {
-                console.log('Could not update user last login date.');
-            });
-        });
-
-        // remove login information before creating token.
-        delete member['Login.password'];
-
-        let token = jwt.sign(member, config.tokenSecret, {
-            expiresIn: '1h'
-        });
-
-        res.json({
-            success: true,
-            token: token
-        });
-        return;
-        
     });
 });
 
@@ -359,7 +353,100 @@ memberRouter.get('/confirmAccount/:hash', function(req, res, next) {
     });
 });
 
-// TODO: reset password route
+// Request a password reset for a member.
+memberRouter.post('/requestReset', function(req, res, next) {
+    if (!req.body.email) {
+        return res.json({
+            success: false,
+            message: 'Missing email.'
+        });
+    }
+
+    models.Member.find({        
+        where: {
+            email: req.body.email
+        }
+    }).then(function(member) {
+
+        models.Login.find({
+            where: {
+                memberId: member.memberId
+            }
+        }).then(function(login) {
+            login.resetHash = uuid();
+            
+            login.save().then(function(saved) {
+                sendPasswordResetEmail(member, login.resetHash);
+            }).catch(function(err) {
+                return res.json({
+                    success: false,
+                    message: err.message
+                });
+            });
+        }).catch(function(err) {
+            return res.json({
+                success: false,
+                message: err.message
+            });
+        });
+    }).catch(function(err) {
+        return res.json({
+            success: false,
+            message: err.message
+        });
+    });
+});
+
+memberRouter.post('/reset/', function(req, res, next) {
+    if (!req.body.email || !req.body.password || !req.body.hash) {
+        return res.json({
+            success: false,
+            message: 'Invalid request.'
+        });
+    }
+
+    models.Member.find({
+        include: [{
+            model: models.Login,
+            where: {
+                resetHash: req.body.hash
+            }
+        }],
+        where: {
+            email: req.body.email
+        }
+    }).then(function(member) {
+        bcrypt.genSalt(saltRounds, function(err, salt) {
+            bcrypt.hash(req.body.password, salt, function(err, hash) {
+                models.Login.find({
+                    where: {
+                        memberId: member.memberId
+                    }
+                }).then(function(login) {
+                    login.password = hash;
+                    login.resetHash = '00000000-0000-0000-0000-000000000000';
+
+                    login.save().then(function(saved) {
+                        return res.json({
+                            success: true,
+                            message: 'Password reset.'
+                        });
+                    }).catch(function(err) {
+                        return res.json({
+                            success: false,
+                            message: err.message
+                        });
+                    })
+                });
+            });
+        });
+    }).catch(function(err) {
+        return res.json({
+            success: false,
+            message: err
+        });
+    });
+});
 
 var getMembershipType = function(type) {
     switch (type.toLowerCase()) {
@@ -370,6 +457,7 @@ var getMembershipType = function(type) {
     }
 }
 
+// TODO: Update URL here to the permanent address.
 var sendConfirmationEmail = function(member, hash) {
     let mailOptions = {
         from: 'The 519 <giftthecode519@gmail.com>',
@@ -379,6 +467,26 @@ var sendConfirmationEmail = function(member, hash) {
 <p>Thanks for signing up as a member for the 519.org!<p>
 <p>Please click the link below to complete your registration:</p>
 <p><a href="http://159.203.45.55:8080/api/confirmAccount/${hash}"><button>Click here</button></a></p>
+<small>Please do not reply to this email.</small>
+        `
+    };
+
+    console.log(mailOptions);
+    sendEmail(mailOptions);
+}
+
+// TODO: Update URL here to the permanent address.
+// The URL here should go to the front end. The hash should be a hidden field that gets passed
+// back to the API when the form is completed.
+var sendPasswordResetEmail = function(member, hash) {
+    let mailOptions = {
+        from: 'The 519 <giftthecode519@gmail.com>',
+        to: `${member.firstName} ${member.lastName} <${member.email}>`,
+        subject: 'The 519 account password reset', 
+        html: `
+<p>You've requested a password reset for your 519.org account. You can click the link below to reset the password.<p>
+<p><a href="http://159.203.45.55:8080/reset/${hash}"><button>Click here</button></a></p>
+<p>If you haven't requested a password reset, you can ignore this email.</p>
 <small>Please do not reply to this email.</small>
         `
     };
