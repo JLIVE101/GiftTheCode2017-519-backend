@@ -1,19 +1,15 @@
 module.exports = function(sequelize, DataTypes) {
     var Status = sequelize.define('Status', {
-        memberId: {
+        id: {
             type: DataTypes.INTEGER
         },
         active: {
             type: DataTypes.BOOLEAN,
             defaultValue: false
         },
-        hash: {
+        confirmationHash: {
             type: DataTypes.UUID,
-            default: DataTypes.UUIDV4 
-        },
-        lastLogin: {
-            type: DataTypes.DATE,
-            defaultValue: DataTypes.NOW
+            default: DataTypes.UUIDV4
         },
         renewalDate: {
             type: DataTypes.DATE,

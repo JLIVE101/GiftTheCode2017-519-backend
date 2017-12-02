@@ -1,6 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
     var Login = sequelize.define('Login', {
-        memberId: {
+        id: {
             type: DataTypes.INTEGER,
             allowNull: false
         },
@@ -10,7 +10,13 @@ module.exports = function(sequelize, DataTypes) {
         },
         resetHash: {
             type: DataTypes.UUID,
-            allowNull: true
+            allowNull: false,
+            defaultValue: DataTypes.UUIDV4
+        },
+        lastLogin: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            defaultValue: new Date()
         }
     }, {
         timestamps: false,

@@ -1,9 +1,17 @@
 module.exports = function(sequelize, DataTypes) {
     var Member = sequelize.define('Member', {
-        memberId: {
+        id: {
             type: DataTypes.INTEGER,
-            primaryKey: true,
-            autoIncrement: true            
+            primaryKey: true, 
+            autoIncrement: true
+        },
+        memberCardNumber: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+        memberId: {
+            type: DataTypes.UUID,
+            default: DataTypes.UUIDV4           
         },
         apartmentNumber: {
             type: DataTypes.STRING(10),
@@ -53,6 +61,16 @@ module.exports = function(sequelize, DataTypes) {
             type: DataTypes.INTEGER,
             allowNull: false
         },
+        permSolicit: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            default: false
+        },
+        permNewsletter: {
+            type: DataTypes.BOOLEAN,
+            allowNull: fales,
+            default: false
+        },
         birthDate: {
             type: DataTypes.DATE,
             allowNull: true
@@ -62,15 +80,14 @@ module.exports = function(sequelize, DataTypes) {
             allowNull: false,
             defaultValue: false
         },
-        household: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-            defaultValue: false
-        },
         dateCreated: {
             type: DataTypes.DATE,
             allowNull: false,
             defaultValue: new Date()
+        },
+        testimony: {
+            type: DataTypes.STRING,
+            allowNull: false
         }
     }, {
         timestamps: false,
