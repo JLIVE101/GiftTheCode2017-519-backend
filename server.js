@@ -7,6 +7,8 @@ var taskRouter = require('./routes/task');
 var memberRouter = require('./routes/member');
 var config = require('./config/config.json');
 
+require('dotenv').config();
+
 var app = express();
 var port = 8080;
 
