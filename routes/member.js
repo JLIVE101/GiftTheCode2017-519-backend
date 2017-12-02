@@ -48,7 +48,7 @@ memberRouter.post('/save', function (req, res, next) {
         membershipType: getMembershipType(body.status),
         birthDate: new Date(body.birthdate),
         inCatchment: body.withinCatchmentArea || false,
-        household: body.status.toLowerCase() == 'household',
+        household: body && body.status ? body.status.toLowerCase() == 'household' : false,
         dateCreated: new Date()
     }).then(function(member) {
 
@@ -449,6 +449,10 @@ memberRouter.post('/reset/', function(req, res, next) {
 });
 
 var getMembershipType = function(type) {
+    if (!type) {
+        return 0;
+    }
+
     switch (type.toLowerCase()) {
         case "individual":
             return 0;
