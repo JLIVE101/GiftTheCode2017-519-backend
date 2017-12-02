@@ -46,4 +46,4 @@ Thumbs.db
 .env
 .npmrc
 .vscode
-/tasks/logstash
+/tasks/logstash-6.0.0
