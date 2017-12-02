@@ -13,7 +13,9 @@
     "@google/maps": "^0.4.5",
     "bcrypt": "^1.0.3",
     "body-parser": "^1.18.2",
+    "cors": "^2.8.4",
     "dotenv": "^4.0.0",
+    "elasticsearch": "^13.3.1",
     "express": "^4.16.2",
     "fs": "0.0.1-security",
     "helmet": "^3.9.0",
@@ -23,6 +25,7 @@
     "nodemailer": "^4.3.1",
     "path": "^0.12.7",
     "sequelize": "^4.22.1",
+    "shelljs": "^0.7.8",
     "uuid": "^3.1.0"
   },
   "devDependencies": {

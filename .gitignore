@@ -45,3 +45,4 @@ Thumbs.db
 # custom
 /server/node_modules
 /server/.env
+/tasks/logstash
