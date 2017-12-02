@@ -3,10 +3,10 @@ var uuid = require('uuid');
 var nodemailer = require('nodemailer');
 var dotenv = require('dotenv');
 var jwt = require('jsonwebtoken');
-var Member = require('../models/member');
 var config = require('../config/config.json');
 var memberRouter = express.Router();
 var models = require('../models');
+var db = require("../models/index");
 var tokenValidator = require('./tokenValidator');
 
 // password hashing
@@ -33,7 +33,7 @@ memberRouter.post('/save', function (req, res, next) {
     });
 
     //save the user
-    models.Member.create({
+    db.Member.create({
         apartmentNumber: body.aptNumber,
         streetNumber: body.streetNumber,
         street: body.streetAddress,
@@ -46,17 +46,21 @@ memberRouter.post('/save', function (req, res, next) {
         lastName: body.lastName,
         email: body.email,
         membershipType: getMembershipType(body.status),
+        permSolicit: body.permissionForSoliciting || false,
+        permNewsletter: body.permissionForNewsletter || false,
         birthDate: new Date(body.birthdate),
         inCatchment: body.withinCatchmentArea || false,
         household: body && body.status ? body.status.toLowerCase() == 'household' : false,
-        dateCreated: new Date()
+        dateCreated: new Date(),
+        testimony: body.testimony
     }).then(function(member) {
 
         bcrypt.genSalt(saltRounds, function(err, salt) {
             bcrypt.hash(body.password, salt, function(err, hash) {
-                models.Login.create({
-                    memberId: member.memberId,
-                    password: hash
+                db.Login.create({
+                    dbIndex: member.dbIndex,
+                    password: hash,
+                    lastLogin: new Date()
                 }).then(function(login) {  
                 }).catch(function(err) {
                     console.log('Could not create login for member');
@@ -64,56 +68,25 @@ memberRouter.post('/save', function (req, res, next) {
             });
         })
         
-        //make dependent models
-        models.Permission.create({
-            permId: member.memberId,
-            permSolicit: body.permissionForSoliciting || false,
-            permNewsletter: body.permissionForNewsletter || false
-        }).then(function(permission) {
-        }).catch(function(err) {
-            console.log('Could not create permission for member');
-        });
-
-        models.Status.create({
-            memberId: member.memberId,
+        db.Status.create({
+            dbIndex: member.dbIndex,
             active: false,
-            hash: uuid(),
-            lastLogin: new Date()
+            confirmationHash: uuid(),
         }).then(function(status) {
             let updatedMember = {
                 firstName: member.firstName,
                 lastName: member.lastName,
                 email: member.email  
             };
-            sendConfirmationEmail(updatedMember, status.hash);
+            // sendConfirmationEmail(updatedMember, status.hash);
         }).catch(function(err) {
             console.log('Could not create status for member.') ;
         });
 
-        // TODO: extra logic for household members
-        // if (member.household) {
-            // assuming res.body contains array of other household members
-            // body.householdMembers.forEach(function(householdMember) {
-            //     models.Household.create({
-            //         relationshipId: member.memberId,
-            //         relationshipType: householdMember.relationship_type,
-            //         firstName: householdMember.firstName,
-            //         lastName: householdMember.lastName
-            //     }).then(function(member) {
-            //     }).catch(function(err) {
-            //         console.log('Could not create household member for member.');                    
-            //     });
-            // });
-        // }
-
-        models.Testimony.create({
-            memberId: member.memberId,
-            testimony: body.testimony
-        });
 
         body.programs.forEach(function(program) {
-            models.MemberPreference.create({
-                memberId: member.memberId,
+            db.MemberPreference.create({
+                dbIndex: member.dbIndex,
                 categoryId: program.id,
                 isPreferred: true
             });
@@ -123,20 +96,11 @@ memberRouter.post('/save', function (req, res, next) {
     });
 });
 
-// delete this route later! Just here to test Sequelize.
-// memberRouter.get('/member', function(req, res, next) {
-//     models.Member.findAll({
-
-//     }).then(function(members) {
-//         res.json(members);
-//     });
-// });
-
 // Update member
 memberRouter.put('/member', [tokenValidator, function(req, res, next) {
     let body = req.body;
 
-    models.Member.find({
+    db.Member.find({
         where: {
             email: body.email
         }
@@ -160,30 +124,19 @@ memberRouter.put('/member', [tokenValidator, function(req, res, next) {
         currentMember.firstName = body.firstName || currentMember.firstName;
         currentMember.lastName = body.lastName || currentMember.lastName;
         currentMember.birthdate = body.birthdate ? new Date(body.birthdate) : currentMember.birthDate;
+        currentMember.permSolicit = body.permissionForSoliciting || currentMember.permSolicit;
+        currentMember.permNewsletter = body.permissionForNewsletter || currentMember.permNewsletter;        
         currentMember.inCatchment = body.withinCatchmentArea || currentMember.inCatchment;
+        currentMember.testimony = body.testimony || currentMember.testimony;
 
         currentMember.save().then(function(saved) {
             }).catch(function(error) {
                 console.log('Error updating members.');
             });
 
-        models.Testimony.find({
+            db.Status.find({
             where: {
-                memberId: currentMember.memberId
-            }
-        }).then(function(testimony) {
-            testimony.testimony = body.testimony;
-            testimony.save().then(function(saved) {
-                }).catch(function(err) {
-                    console.log('Error updating testimony');
-                });
-        }).catch(function(err) {
-            console.log('Error getting testimony');
-        });
-
-        models.Status.find({
-            where: {
-                memberId: currentMember.memberId
+                dbIndex: currentMember.dbIndex
             }
         }).then(function(status) {
             status.active = true,
@@ -197,33 +150,16 @@ memberRouter.put('/member', [tokenValidator, function(req, res, next) {
         }).catch(function(err) {
             console.log('Error getting status');
         });
-
-        models.Permission.find({
-            where: {
-                permId: currentMember.memberId
-            }
-        }).then(function(permission) {
-            permission.permSolicit = body.permissionForSoliciting;
-            permission.permNewsletter = body.permissionForNewsletter;
-
-            permission.save().then(function(saved) {
-            }).catch(function(err) {
-                console.log('Could not update permission.');
-            });
-        });
         res.json(currentMember);
     });
 }]);
 
 // Get individual member
 memberRouter.get('/member', [tokenValidator, function(req, res, next) {
-    models.Member.find({
+    db.Member.find({
         include: [
-            {model: models.Status},
-            {model: models.Testimony},
-            {model: models.Permission},
-            {model: models.Household},
-            {model: models.MemberPreference},
+            {model: db.Status},
+            {model: db.MemberPreference},
         ],
         where: {
             email: req.decoded.email
@@ -252,14 +188,11 @@ memberRouter.post('/login', function(req, res, next) {
         return;
     }
 
-    models.Member.find({
+    db.Member.find({
         include: [
-            {model: models.Status},
-            {model: models.Login},
-            {model: models.Testimony},
-            {model: models.Permission},
-            {model: models.Household},
-            {model: models.MemberPreference},            
+            {model: db.Status},
+            {model: db.Login},
+            {model: db.MemberPreference},            
         ],
         where: {
             email: body.email
@@ -273,13 +206,13 @@ memberRouter.post('/login', function(req, res, next) {
             }
 
             if (comparison) {
-                models.Status.find({
+                db.Login.find({
                     where: {
-                        memberId: member.memberId
+                        dbIndex: member.dbIndex
                     }
-                }).then(function(status) {       
-                    status.lastLogin = new Date();
-                    status.save().then(function(saved) {
+                }).then(function(login) {       
+                    login.lastLogin = new Date();
+                    login.save().then(function(saved) {
                     }).catch(function(error) {
                         console.log('Could not update user last login date.');
                     });
@@ -308,11 +241,11 @@ memberRouter.post('/login', function(req, res, next) {
 
 //confirm account creation
 memberRouter.get('/confirmAccount/:hash', function(req, res, next) {
-    models.Member.findAll({        
+    db.Member.findAll({        
         include: [{
-            model: models.Status,
+            model: db.Status,
             where: {
-                hash: req.params.hash
+                confirmationHash: req.params.hash
             }
         }]
     }).then(function(status) {
@@ -325,19 +258,19 @@ memberRouter.get('/confirmAccount/:hash', function(req, res, next) {
         }
 
         status = status[0].dataValues;
-        if (!status.Status.dataValues.hash || status.Status.dataValues.hash == '00000000-0000-0000-0000-000000000000') {
+        if (!status.Status.dataValues.confirmationHash || status.Status.dataValues.confirmationHash == '00000000-0000-0000-0000-000000000000') {
             res.json({
                 success: false
             });
             return;
         }
 
-        models.Status.update({
-            hash: '00000000-0000-0000-0000-000000000000',
+        db.Status.update({
+            confirmationHash: '00000000-0000-0000-0000-000000000000',
             active: true
         }, {
             where: {
-                hash: status.Status.dataValues.hash
+                confirmationHash: status.Status.dataValues.confirmationHash
             }
         }).then(function(member) {
             res.redirect(302, '/home'); // TODO: redirect to landing page
@@ -362,21 +295,21 @@ memberRouter.post('/requestReset', function(req, res, next) {
         });
     }
 
-    models.Member.find({        
+    db.Member.find({        
         where: {
             email: req.body.email
         }
     }).then(function(member) {
 
-        models.Login.find({
+        db.Login.find({
             where: {
-                memberId: member.memberId
+                dbIndex: member.dbIndex
             }
         }).then(function(login) {
             login.resetHash = uuid();
             
             login.save().then(function(saved) {
-                sendPasswordResetEmail(member, login.resetHash);
+                //sendPasswordResetEmail(member, login.resetHash);
             }).catch(function(err) {
                 return res.json({
                     success: false,
@@ -405,9 +338,9 @@ memberRouter.post('/reset/', function(req, res, next) {
         });
     }
 
-    models.Member.find({
+    db.Member.find({
         include: [{
-            model: models.Login,
+            model: db.Login,
             where: {
                 resetHash: req.body.hash
             }
@@ -418,7 +351,7 @@ memberRouter.post('/reset/', function(req, res, next) {
     }).then(function(member) {
         bcrypt.genSalt(saltRounds, function(err, salt) {
             bcrypt.hash(req.body.password, salt, function(err, hash) {
-                models.Login.find({
+                db.Login.find({
                     where: {
                         memberId: member.memberId
                     }

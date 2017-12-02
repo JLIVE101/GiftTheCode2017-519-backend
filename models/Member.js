@@ -63,12 +63,10 @@ module.exports = function(sequelize, DataTypes) {
         },
         permSolicit: {
             type: DataTypes.BOOLEAN,
-            allowNull: false,
             default: false
         },
         permNewsletter: {
             type: DataTypes.BOOLEAN,
-            allowNull: fales,
             default: false
         },
         birthDate: {
@@ -87,7 +85,6 @@ module.exports = function(sequelize, DataTypes) {
         },
         testimony: {
             type: DataTypes.STRING,
-            allowNull: false
         }
     }, {
         timestamps: false,

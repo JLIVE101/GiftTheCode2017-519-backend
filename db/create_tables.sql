@@ -14,12 +14,12 @@ CREATE TABLE member (
 	lastName VARCHAR(50) NOT NULL,
 	email VARCHAR(60) NOT NULL UNIQUE,
 	membershipType INT NOT NULL,
-	permSolicit TINYINT(1) NOT NULL,
-	permNewsletter TINYINT(1) NOT NULL,
+	permSolicit TINYINT(1) NOT NULL DEFAULT FALSE,
+	permNewsletter TINYINT(1) NOT NULL DEFAULT FALSE,
 	birthDate DATE,
 	inCatchment TINYINT(1) NOT NULL DEFAULT 0,
 	dateCreated DATETIME NOT NULL DEFAULT NOW(),
-	testimony MEDIUMTEXT NOT NULL
+	testimony MEDIUMTEXT 
 );
 
 CREATE TRIGGER beforeInsertMember
