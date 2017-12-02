@@ -1,6 +1,6 @@
 CREATE TABLE member (
 	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-	memberCardNumber INT NULL,
+	memberCardNumber CHAR(36) NULL,
 	memberId CHAR(36) DEFAULT '00000000-0000-0000-0000-000000000000', 
 	apartmentNumber VARCHAR(10),
 	streetNumber VARCHAR(10) NOT NULL,
@@ -23,27 +23,30 @@ CREATE TABLE member (
 );
 
 CREATE TRIGGER beforeInsertMember
-	BEFORE INSERT ON status
+	BEFORE INSERT ON member
 	FOR EACH ROW
 	SET new.memberId = uuid();
 
 CREATE TABLE login (
-	memberId INT NOT NULL,
+	id INT NOT NULL,
 	password CHAR(60) BINARY NOT NULL,
 	resetHash CHAR(36) DEFAULT '00000000-0000-0000-0000-000000000000', 
 	lastLogin DATETIME DEFAULT NOW(),
-	FOREIGN KEY (memberId) 
-		REFERENCES member (memberId)
+	FOREIGN KEY (id) 
+		REFERENCES member (id)
 		ON DELETE CASCADE
 );
 
 CREATE TABLE status (
-	memberId INT NOT NULL,
+	id INT NOT NULL,
 	active TINYINT(1) NOT NULL DEFAULT 0,
 	confirmationHash CHAR(36),
 	renewalDate DATETIME DEFAULT NOW(),
-	FOREIGN KEY (memberId) REFERENCES member(memberId) ON DELETE CASCADE
+	FOREIGN KEY (id) 
+		REFERENCES member(id) 
+		ON DELETE CASCADE
 );
+
 
 CREATE TRIGGER beforeInsertStatus
 	BEFORE INSERT ON status
@@ -59,8 +62,12 @@ CREATE TABLE memberPreference (
 	memberId INT NOT NULL,
 	categoryId INT NOT NULL,
 	isPreferred TINYINT(1) NOT NULL,
-	FOREIGN KEY (memberId) REFERENCES member (memberId) ON DELETE CASCADE,
-	FOREIGN KEY (categoryId) REFERENCES category (categoryId) ON DELETE CASCADE
+	FOREIGN KEY (memberId) 
+		REFERENCES member (id) 
+		ON DELETE CASCADE,
+	FOREIGN KEY (categoryId) 
+		REFERENCES category (categoryId) 
+		ON DELETE CASCADE
 );
 
 CREATE TABLE event (
@@ -74,6 +81,10 @@ CREATE TABLE eventCategory (
 	eventId INT NOT NULL,
 	categoryId INT NOT NULL,
 	isRelatedCategory TINYINT(1) NOT NULL,
-	FOREIGN KEY (eventId) REFERENCES event (eventId) ON DELETE CASCADE,
-	FOREIGN KEY (categoryId) REFERENCES category (categoryId) ON DELETE CASCADE
+	FOREIGN KEY (eventId) 
+		REFERENCES event (eventId) 
+		ON DELETE CASCADE,
+	FOREIGN KEY (categoryId) 
+		REFERENCES category (categoryId) 
+		ON DELETE CASCADE
 );
