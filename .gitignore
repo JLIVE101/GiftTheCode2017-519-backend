@@ -43,5 +43,7 @@ Thumbs.db
 
 
 # custom
-/server/node_modules
-/server/.env
+.env
+.npmrc
+.vscode
+/tasks/logstash
