@@ -1,5 +1,7 @@
 CREATE TABLE member (
-	memberId INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	memberCardNumber INT NULL,
+	memberId CHAR(36) DEFAULT '00000000-0000-0000-0000-000000000000', 
 	apartmentNumber VARCHAR(10),
 	streetNumber VARCHAR(10) NOT NULL,
 	street VARCHAR(50) NOT NULL,
@@ -12,51 +14,33 @@ CREATE TABLE member (
 	lastName VARCHAR(50) NOT NULL,
 	email VARCHAR(60) NOT NULL UNIQUE,
 	membershipType INT NOT NULL,
+	permSolicit TINYINT(1) NOT NULL,
+	permNewsletter TINYINT(1) NOT NULL,
 	birthDate DATE,
 	inCatchment TINYINT(1) NOT NULL DEFAULT 0,
-	household TINYINT(1) NOT NULL DEFAULT 0,
-	dateCreated DATETIME NOT NULL DEFAULT NOW()
+	dateCreated DATETIME NOT NULL DEFAULT NOW(),
+	testimony MEDIUMTEXT NOT NULL
 );
 
-CREATE TABLE testimony (
-	memberId INT NOT NULL,
-	testimony MEDIUMTEXT NOT NULL,
-	FOREIGN KEY (memberId) REFERENCES member(memberId) ON DELETE CASCADE
-);
+CREATE TRIGGER beforeInsertMember
+	BEFORE INSERT ON status
+	FOR EACH ROW
+	SET new.memberId = uuid();
 
 CREATE TABLE login (
 	memberId INT NOT NULL,
 	password CHAR(60) BINARY NOT NULL,
 	resetHash CHAR(36) DEFAULT '00000000-0000-0000-0000-000000000000', 
+	lastLogin DATETIME DEFAULT NOW(),
 	FOREIGN KEY (memberId) 
 		REFERENCES member (memberId)
 		ON DELETE CASCADE
 );
 
-CREATE TABLE permission (
-	permId INT NOT NULL,
-	permSolicit TINYINT(1) NOT NULL,
-	permNewsletter TINYINT(1) NOT NULL,
-	FOREIGN KEY (permId)
-			REFERENCES member (memberId)
-			ON DELETE CASCADE
-);
-
-CREATE TABLE household (
-	relationshipId INT NOT NULL,
-	relationshipType INT NOT NULL,
-	firstName VARCHAR(50) NOT NULL,
-	lastName VARCHAR(50) NOT NULL,
-	FOREIGN KEY (relationshipId)
-			REFERENCES member (memberId)
-			ON DELETE CASCADE
-);
-
 CREATE TABLE status (
 	memberId INT NOT NULL,
 	active TINYINT(1) NOT NULL DEFAULT 0,
-	hash CHAR(36),
-	lastLogin DATETIME DEFAULT NOW(),
+	confirmationHash CHAR(36),
 	renewalDate DATETIME DEFAULT NOW(),
 	FOREIGN KEY (memberId) REFERENCES member(memberId) ON DELETE CASCADE
 );
@@ -64,7 +48,7 @@ CREATE TABLE status (
 CREATE TRIGGER beforeInsertStatus
 	BEFORE INSERT ON status
 	FOR EACH ROW
-	SET new.hash = uuid();
+	SET new.confirmationHash = uuid();
 
 CREATE TABLE category (
 	categoryId INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
