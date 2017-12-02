@@ -1,6 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
     var Login = sequelize.define('Login', {
-        id: {
+        dbIndex: {
             type: DataTypes.INTEGER,
             allowNull: false
         },

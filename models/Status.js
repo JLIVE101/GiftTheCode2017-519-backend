@@ -1,6 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
     var Status = sequelize.define('Status', {
-        id: {
+        dbIndex: {
             type: DataTypes.INTEGER
         },
         active: {

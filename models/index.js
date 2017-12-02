@@ -25,17 +25,11 @@ Object.keys(db).forEach(function(modelName) {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
-db.Login.belongsTo(db.Member, { foreignKey: 'memberId' });
-db.Member.hasOne(db.Login, { foreignKey: 'memberId' });
+db.Login.belongsTo(db.Member, { foreignKey: 'dbIndex' });
+db.Member.hasOne(db.Login, { foreignKey: 'dbIndex' });
 
-db.Household.belongsTo(db.Member, { foreignKey: 'relationshipId' });
-db.Member.hasMany(db.Household, { foreignKey: 'relationshipId' });
-
-db.Permission.belongsTo(db.Member, { foreignKey: 'permId' });
-db.Member.hasOne(db.Permission, { foreignKey: 'permId' });
-
-db.Status.belongsTo(db.Member,  { foreignKey: 'memberId' });
-db.Member.hasOne(db.Status, { foreignKey: 'memberId' });
+db.Status.belongsTo(db.Member,  { foreignKey: 'dbIndex' });
+db.Member.hasOne(db.Status, { foreignKey: 'dbIndex' });
 
 db.Event.hasMany(db.EventCategory, { foreignKey: 'eventId' });
 db.Category.hasMany(db.EventCategory, { foreignKey: 'categoryId' });
@@ -43,11 +37,9 @@ db.EventCategory.belongsTo(db.Event, { foreignKey: 'eventId' });
 db.EventCategory.belongsTo(db.Category, { foreignKey: 'categoryId' });
 
 db.Category.hasMany(db.MemberPreference, { foreignKey: 'categoryId' });
-db.Member.hasMany(db.MemberPreference, { foreignKey: 'memberId' });
-db.MemberPreference.belongsTo(db.Member, { foreignKey: 'memberId' });
+db.Member.hasMany(db.MemberPreference, { foreignKey: 'dbIndex' });
+db.MemberPreference.belongsTo(db.Member, { foreignKey: 'dbIndex' });
 db.MemberPreference.belongsTo(db.Category, { foreignKey: 'categoryId' });
 
-db.Testimony.belongsTo(db.Member, { foreignKey: 'memberId' });
-db.Member.hasOne(db.Testimony, { foreignKey: 'memberId' });
 
 module.exports = db;

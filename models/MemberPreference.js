@@ -1,6 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
     var MemberPreference = sequelize.define('MemberPreference', {
-        memberId: {
+        dbIndex: {
             type: DataTypes.INTEGER,
             allowNull: false
         },

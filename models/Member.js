@@ -1,6 +1,6 @@
 module.exports = function(sequelize, DataTypes) {
     var Member = sequelize.define('Member', {
-        id: {
+        dbIndex: {
             type: DataTypes.INTEGER,
             primaryKey: true, 
             autoIncrement: true

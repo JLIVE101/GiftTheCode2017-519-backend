@@ -1,5 +1,5 @@
 CREATE TABLE member (
-	id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	dbIndex INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
 	memberCardNumber CHAR(36) NULL,
 	memberId CHAR(36) DEFAULT '00000000-0000-0000-0000-000000000000', 
 	apartmentNumber VARCHAR(10),
@@ -28,22 +28,22 @@ CREATE TRIGGER beforeInsertMember
 	SET new.memberId = uuid();
 
 CREATE TABLE login (
-	id INT NOT NULL,
+	dbIndex INT NOT NULL,
 	password CHAR(60) BINARY NOT NULL,
 	resetHash CHAR(36) DEFAULT '00000000-0000-0000-0000-000000000000', 
 	lastLogin DATETIME DEFAULT NOW(),
-	FOREIGN KEY (id) 
-		REFERENCES member (id)
+	FOREIGN KEY (dbIndex) 
+		REFERENCES member (dbIndex)
 		ON DELETE CASCADE
 );
 
 CREATE TABLE status (
-	id INT NOT NULL,
+	dbIndex INT NOT NULL,
 	active TINYINT(1) NOT NULL DEFAULT 0,
 	confirmationHash CHAR(36),
 	renewalDate DATETIME DEFAULT NOW(),
-	FOREIGN KEY (id) 
-		REFERENCES member(id) 
+	FOREIGN KEY (dbIndex) 
+		REFERENCES member(dbIndex) 
 		ON DELETE CASCADE
 );
 
@@ -59,11 +59,11 @@ CREATE TABLE category (
 );
 
 CREATE TABLE memberPreference (
-	memberId INT NOT NULL,
+	dbIndex INT NOT NULL,
 	categoryId INT NOT NULL,
 	isPreferred TINYINT(1) NOT NULL,
-	FOREIGN KEY (memberId) 
-		REFERENCES member (id) 
+	FOREIGN KEY (dbIndex) 
+		REFERENCES member (dbIndex) 
 		ON DELETE CASCADE,
 	FOREIGN KEY (categoryId) 
 		REFERENCES category (categoryId) 
