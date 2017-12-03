@@ -5,6 +5,7 @@ var bodyParser = require('body-parser');
 var helmet = require('helmet');
 var taskRouter = require('./routes/task');
 var memberRouter = require('./routes/member');
+var accountRouter = require('./routes/account');
 var config = require('./config/config.json');
 
 require('dotenv').config();
@@ -17,8 +18,9 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 
-//member routes
+// routes
 app.use('/api', memberRouter);
+app.use('/api', accountRouter);
 app.use('/api', taskRouter);
 
 app.listen(port, () => {
