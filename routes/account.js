@@ -15,7 +15,7 @@ accountRouter.post('/login', function(req, res, next) {
     let body = req.body;
 
     if (!body.email || !body.password) {
-        res.json({
+        res.status(401).json({
             success: false
         });
         return;
@@ -33,6 +33,13 @@ accountRouter.post('/login', function(req, res, next) {
         raw: true
     }).then(function(member) {
 
+        if (!member.active) {
+            return res.status(401).json({
+                success: false,
+                message: 'Account has not yet been activated. Please check your email to confirm your account.'
+            });
+        }
+
         bcrypt.compare(body.password, member['Login.password'], function(err, comparison) {
             if (err) {
                 throw err;
@@ -43,7 +50,7 @@ accountRouter.post('/login', function(req, res, next) {
                     where: {
                         dbIndex: member.dbIndex
                     }
-                }).then(function(login) {       
+                }).then(function(login) {
                     login.lastLogin = new Date();
                     login.save().then(function(saved) {
                     }).catch(function(error) {
@@ -58,12 +65,12 @@ accountRouter.post('/login', function(req, res, next) {
                     expiresIn: '1h'
                 });
         
-                return res.json({
+                return res.status(200).json({
                     success: true,
                     token: token
                 });        
             } else {
-                return res.json({
+                return res.status(401).json({
                     success: false,
                     message: 'Invalid credentials'
                 });
@@ -75,7 +82,7 @@ accountRouter.post('/login', function(req, res, next) {
 //confirm account creation
 accountRouter.get('/confirmAccount/:hash', function(req, res, next) {
     if (!req.params.hash) {
-        return res.json({
+        return res.status(403).json({
             success: false,
             message: 'Invalid request.'
         });
@@ -91,7 +98,7 @@ accountRouter.get('/confirmAccount/:hash', function(req, res, next) {
     }).then(function(status) {
         
         if (!status || status.length == 0 || !status[0].dataValues) {
-            res.json({
+            res.status(403).json({
                 success: false
             });
             return;
@@ -99,7 +106,7 @@ accountRouter.get('/confirmAccount/:hash', function(req, res, next) {
 
         status = status[0].dataValues;
         if (!status.Status.dataValues.confirmationHash || status.Status.dataValues.confirmationHash == '00000000-0000-0000-0000-000000000000') {
-            res.json({
+            res.status(403).json({
                 success: false
             });
             return;
@@ -116,7 +123,7 @@ accountRouter.get('/confirmAccount/:hash', function(req, res, next) {
             res.redirect(302, '/home'); // TODO: redirect to landing page
         });
     }).catch(function(err) {
-        res.json({
+        res.status(500).json({
             success: false,
         });
     });
@@ -125,7 +132,7 @@ accountRouter.get('/confirmAccount/:hash', function(req, res, next) {
 // Request a password reset for a member.
 accountRouter.post('/requestReset', function(req, res, next) {
     if (!req.body.email) {
-        return res.json({
+        return res.status(401).json({
             success: false,
             message: 'Missing email.'
         });
@@ -146,21 +153,21 @@ accountRouter.post('/requestReset', function(req, res, next) {
             
             login.save().then(function(saved) {
                 mailer.sendPasswordResetEmail(member, login.resetHash);
-                return res.json({
+                return res.status(200).json({
                     success: true
                 });
             }).catch(function(err) {
-                return res.json({
+                return res.status(500).json({
                     success: false,
                 });
             });
         }).catch(function(err) {
-            return res.json({
+            return res.status(500).json({
                 success: false,
             });
         });
     }).catch(function(err) {
-        return res.json({
+        return res.status(500).json({
             success: false,
         });
     });
@@ -171,7 +178,7 @@ accountRouter.post('/requestReset', function(req, res, next) {
 // that is generated there.
 accountRouter.post('/reset', function(req, res, next) {
     if (!req.body.email || !req.body.password || !req.body.hash) {
-        return res.json({
+        return res.status(401).json({
             success: false,
             message: 'Invalid request.'
         });
@@ -189,7 +196,7 @@ accountRouter.post('/reset', function(req, res, next) {
         }
     }).then(function(member) {
         if (!member) {
-            return res.json({
+            return res.status(403).json({
                 success: false,
                 message: 'Invalid request.'
             });
@@ -206,24 +213,24 @@ accountRouter.post('/reset', function(req, res, next) {
                     login.resetHash = '00000000-0000-0000-0000-000000000000';
 
                     login.save().then(function(saved) {
-                        return res.json({
+                        return res.status(200).json({
                             success: true,
                             message: 'Password reset.'
                         });
                     }).catch(function(err) {
-                        return res.json({
+                        return res.status(500).json({
                             success: false,
                         });
                     })
                 }).catch(function(err) {
-                    return res.json({
+                    return res.status(500).json({
                         success: false,
                     });
                 })
             });
         });
     }).catch(function(err) {
-        return res.json({
+        return res.status(500).json({
             success: false,
         });
     });

@@ -28,7 +28,7 @@ memberRouter.post('/member', function (req, res, next) {
         !body.status || 
         !body.birthdate ||
         !body.password) {
-        return res.json({
+        return res.status(401).json({
             success: false,
             message: 'Invalid request. Missing required fields.'
         });
@@ -96,7 +96,7 @@ memberRouter.post('/member', function (req, res, next) {
         }
 
         // TODO: should redirect to login instead with success message
-        res.json(member);
+        res.status(200).json(member);
     });
 });
 
@@ -105,7 +105,7 @@ memberRouter.put('/member', [tokenValidator, function(req, res, next) {
     let body = req.body;
 
     if (!body || !body.email) {
-        return res.json({
+        return res.status(401).json({
             success: false,
             message: 'Invalid request.'
         });
@@ -117,7 +117,7 @@ memberRouter.put('/member', [tokenValidator, function(req, res, next) {
         }
     }).then(function(currentMember) {
         if (!currentMember) {
-            res.json({
+            res.status(403).json({
                 success: false
             });
             return;
@@ -141,7 +141,7 @@ memberRouter.put('/member', [tokenValidator, function(req, res, next) {
         currentMember.save()
             .then(function(saved) {
             }).catch(function(error) {
-                return res.json({
+                return res.status(500).json({
                     success: false,
                     message: 'Could not update member.'
                 });
@@ -166,7 +166,7 @@ memberRouter.put('/member', [tokenValidator, function(req, res, next) {
         });
 
         // TODO: Is this the correct response for update?
-        res.json(currentMember);
+        res.status(200).json(currentMember);
     });
 }]);
 
@@ -182,15 +182,11 @@ memberRouter.get('/member', [tokenValidator, function(req, res, next) {
         }
     }).then(function(member) {
 
-        res.json({
+        return res.status(200).json({
             success: true,
             member: member
         });
-        return;
 
-        res.json({
-            success: false
-        });
     });
 }]);
 
