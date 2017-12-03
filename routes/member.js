@@ -11,24 +11,28 @@ var tokenValidator = require('./tokenValidator');
 var bcrypt = require('bcrypt');
 var saltRounds = 10;
 
-var googleMapsClient = require('@google/maps').createClient({
-    key: config.GOOGLEMAPS_API_KEY
-});
-
 // Add a new member
 memberRouter.post('/member', function (req, res, next) {
     var body = req.body;
 
-    // TODO: validate member object
-
-    //triangulate location to set flag// Geocode an address.
-    googleMapsClient.geocode({
-        address: 'The 519 Catchment Area'
-    }, function (err, response) {
-        if (err) {
-            console.log('Error finding catchment area.');
-        }
-    });
+    if (!body ||
+        !body.streetNumber ||
+        !body.streetAddress || 
+        !body.city ||
+        !body.province ||
+        !body.postalcode ||
+        !body.preferredPhone || 
+        !body.firstName || 
+        !body.lastName ||
+        !body.email ||
+        !body.status || 
+        !body.birthdate ||
+        !body.password) {
+        return res.json({
+            success: false,
+            message: 'Invalid request. Missing required fields.'
+        });
+    }
 
     //save the user
     db.Member.create({
@@ -81,15 +85,17 @@ memberRouter.post('/member', function (req, res, next) {
             console.log('Could not create status for member.') ;
         });
 
-
-        body.programs.forEach(function(program) {
-            db.MemberPreference.create({
-                dbIndex: member.dbIndex,
-                categoryId: program.id,
-                isPreferred: true
+        if (body.programs) {
+            body.programs.forEach(function(program) {
+                db.MemberPreference.create({
+                    dbIndex: member.dbIndex,
+                    categoryId: program.id,
+                    isPreferred: true
+                });
             });
-        });
+        }
 
+        // TODO: should redirect to login instead with success message
         res.json(member);
     });
 });
@@ -97,6 +103,13 @@ memberRouter.post('/member', function (req, res, next) {
 // Update member
 memberRouter.put('/member', [tokenValidator, function(req, res, next) {
     let body = req.body;
+
+    if (!body || !body.email) {
+        return res.json({
+            success: false,
+            message: 'Invalid request.'
+        });
+    }
 
     db.Member.find({
         where: {
@@ -109,8 +122,6 @@ memberRouter.put('/member', [tokenValidator, function(req, res, next) {
             });
             return;
         }
-
-        console.log(currentMember);
 
         currentMember.apartmentNumber = body.aptNumber || currentMember.apartmentNumber;
         currentMember.streetNumber = body.streetNumber || currentMember.streetNumber;
@@ -127,12 +138,16 @@ memberRouter.put('/member', [tokenValidator, function(req, res, next) {
         currentMember.inCatchment = body.withinCatchmentArea || currentMember.inCatchment;
         currentMember.testimony = body.testimony || currentMember.testimony;
 
-        currentMember.save().then(function(saved) {
+        currentMember.save()
+            .then(function(saved) {
             }).catch(function(error) {
-                console.log('Error updating members.');
+                return res.json({
+                    success: false,
+                    message: 'Could not update member.'
+                });
             });
 
-            db.Status.find({
+        db.Status.find({
             where: {
                 dbIndex: currentMember.dbIndex
             }
@@ -140,14 +155,17 @@ memberRouter.put('/member', [tokenValidator, function(req, res, next) {
             status.active = true,
             status.renewalDate = new Date();
 
-            status.save().then(function(saved) {
-            }).catch(function(err) {
-                console.log('Could not update user status');
-            });
+            status.save()
+                .then(function(saved) {
+                }).catch(function(err) {
+                    console.error('Could not update user status.');
+                });
 
         }).catch(function(err) {
-            console.log('Error getting status');
+            console.error('Could not find status for member with ID: ', currentMember.dbIndex);
         });
+
+        // TODO: Is this the correct response for update?
         res.json(currentMember);
     });
 }]);

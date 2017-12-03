@@ -73,6 +73,13 @@ accountRouter.post('/login', function(req, res, next) {
 
 //confirm account creation
 accountRouter.get('/confirmAccount/:hash', function(req, res, next) {
+    if (!req.params.hash) {
+        return res.json({
+            success: false,
+            message: 'Invalid request.'
+        });
+    }
+
     db.Member.findAll({        
         include: [{
             model: db.Status,
@@ -108,12 +115,8 @@ accountRouter.get('/confirmAccount/:hash', function(req, res, next) {
             res.redirect(302, '/home'); // TODO: redirect to landing page
         });
     }).catch(function(err) {
-
-        console.log(err);
-
         res.json({
             success: false,
-            message: err
         });
     });
 });
@@ -148,19 +151,16 @@ accountRouter.post('/requestReset', function(req, res, next) {
             }).catch(function(err) {
                 return res.json({
                     success: false,
-                    message: err.message
                 });
             });
         }).catch(function(err) {
             return res.json({
                 success: false,
-                message: err.message
             });
         });
     }).catch(function(err) {
         return res.json({
             success: false,
-            message: err.message
         });
     });
 });
@@ -187,6 +187,13 @@ accountRouter.post('/reset', function(req, res, next) {
             email: req.body.email
         }
     }).then(function(member) {
+        if (!member) {
+            return res.json({
+                success: false,
+                message: 'Invalid request.'
+            });
+        }
+
         bcrypt.genSalt(saltRounds, function(err, salt) {
             bcrypt.hash(req.body.password, salt, function(err, hash) {
                 db.Login.find({
@@ -205,16 +212,18 @@ accountRouter.post('/reset', function(req, res, next) {
                     }).catch(function(err) {
                         return res.json({
                             success: false,
-                            message: err.message
                         });
                     })
-                });
+                }).catch(function(err) {
+                    return res.json({
+                        success: false,
+                    });
+                })
             });
         });
     }).catch(function(err) {
         return res.json({
             success: false,
-            message: err
         });
     });
 });
