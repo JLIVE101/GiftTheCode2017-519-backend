@@ -5,7 +5,8 @@ var jwt = require('jsonwebtoken');
 var config = require('../config/config.json');
 var accountRouter = express.Router();
 var db = require('../models/index');
-var tokenValidator = require('./tokenValidator');
+var mailer = require('../util/mailer');
+var tokenValidator = require('../middleware/tokenValidator');
 var bcrypt = require('bcrypt');
 var saltRounds = 10;
 
@@ -144,7 +145,7 @@ accountRouter.post('/requestReset', function(req, res, next) {
             login.resetHash = uuid();
             
             login.save().then(function(saved) {
-                //sendPasswordResetEmail(member, login.resetHash);
+                mailer.sendPasswordResetEmail(member, login.resetHash);
                 return res.json({
                     success: true
                 });

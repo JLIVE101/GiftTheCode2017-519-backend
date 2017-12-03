@@ -1,9 +1,10 @@
+require('dotenv').config()
 var fs = require("fs");
 var path = require("path");
 var Sequelize = require("sequelize");
-// var env = process.env.NODE_ENV || "development";
+var env = process.env.NODE_ENV || "development";
 var config = require(path.join(__dirname, '..', 'config', 'config.json'));
-var sequelize = new Sequelize(config.database, config.username, config.password, config.sequelize);
+var sequelize = new Sequelize(process.env.DB_DATABASE, process.env.DB_USER, process.env.DB_PASS, config.sequelize);
 var db = {};
 
 fs
