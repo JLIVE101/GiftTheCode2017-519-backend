@@ -1,8 +1,7 @@
-
+require('dotenv').config()
 var express = require('express');
 var uuid = require('uuid');
 var jwt = require('jsonwebtoken');
-var config = require('../config/config.json');
 var accountRouter = express.Router();
 var db = require('../models/index');
 var mailer = require('../util/mailer');
@@ -33,7 +32,7 @@ accountRouter.post('/login', function(req, res, next) {
         raw: true
     }).then(function(member) {
 
-        if (!member.active) {
+        if (member.active == false) {
             return res.status(401).json({
                 success: false,
                 message: 'Account has not yet been activated. Please check your email to confirm your account.'
@@ -61,7 +60,7 @@ accountRouter.post('/login', function(req, res, next) {
                 // remove login information before creating token.
                 delete member['Login.password'];
         
-                let token = jwt.sign(member, config.tokenSecret, {
+                let token = jwt.sign(member, process.env.TOKEN_SECRET, {
                     expiresIn: '1h'
                 });
         

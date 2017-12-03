@@ -1,7 +1,7 @@
-require('dotenv').config();
 var jwt = require('jsonwebtoken');
+require('dotenv').config();
 
-var tokenValidator = function(req, res, next) {
+var isAdmin = function(req, res, next) {
     var token = req.body.token || req.query.token || req.headers['x-access-token'];
 
     if (!token) {
@@ -12,10 +12,10 @@ var tokenValidator = function(req, res, next) {
     }
 
     jwt.verify(token, process.env.TOKEN_SECRET, function(err, decoded) {
-        if (err) {
+        if (!decoded.isAdmin) {
             return res.status(401).json({
                 success: false,
-                message: 'Failed to authenticate'
+                message: 'Failed to authenticate.'
             });
         }
         req.decoded = decoded;
