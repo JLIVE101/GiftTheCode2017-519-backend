@@ -16,7 +16,7 @@ module.exports = function(sequelize, DataTypes) {
     }, {
         timestamps: false,
         freezeTableName: true,
-        tableName: 'memberpreference'
+        tableName: 'memberPreference'
     });
 
     MemberPreference.removeAttribute('id');        

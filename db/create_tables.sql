@@ -20,7 +20,7 @@ CREATE TABLE member (
 	inCatchment TINYINT(1) NOT NULL DEFAULT FALSE,
 	dateCreated DATETIME NOT NULL DEFAULT NOW(),
 	testimony MEDIUMTEXT,
-	isAdmin TINYINT(1) NOT NULL DEFAULT FALSE,
+	isAdmin TINYINT(1) NOT NULL DEFAULT FALSE
 );
 
 CREATE TRIGGER beforeInsertMember
@@ -33,9 +33,7 @@ CREATE TABLE login (
 	password CHAR(60) BINARY NOT NULL,
 	resetHash CHAR(36) DEFAULT '00000000-0000-0000-0000-000000000000', 
 	lastLogin DATETIME DEFAULT NOW(),
-	FOREIGN KEY (dbIndex) 
-		REFERENCES member (dbIndex)
-		ON DELETE CASCADE
+	FOREIGN KEY (dbIndex) REFERENCES member (dbIndex) ON DELETE CASCADE
 );
 
 CREATE TABLE status (
@@ -43,9 +41,7 @@ CREATE TABLE status (
 	active TINYINT(1) NOT NULL DEFAULT 0,
 	confirmationHash CHAR(36),
 	renewalDate DATETIME DEFAULT NOW(),
-	FOREIGN KEY (dbIndex) 
-		REFERENCES member(dbIndex) 
-		ON DELETE CASCADE
+	FOREIGN KEY (dbIndex) REFERENCES member(dbIndex) ON DELETE CASCADE
 );
 
 
@@ -63,12 +59,8 @@ CREATE TABLE memberPreference (
 	dbIndex INT NOT NULL,
 	categoryId INT NOT NULL,
 	isPreferred TINYINT(1) NOT NULL,
-	FOREIGN KEY (dbIndex) 
-		REFERENCES member (dbIndex) 
-		ON DELETE CASCADE,
-	FOREIGN KEY (categoryId) 
-		REFERENCES category (categoryId) 
-		ON DELETE CASCADE
+	FOREIGN KEY (dbIndex) REFERENCES member (dbIndex) ON DELETE CASCADE,
+	FOREIGN KEY (categoryId) REFERENCES category (categoryId) ON DELETE CASCADE
 );
 
 CREATE TABLE event (
@@ -82,10 +74,6 @@ CREATE TABLE eventCategory (
 	eventId INT NOT NULL,
 	categoryId INT NOT NULL,
 	isRelatedCategory TINYINT(1) NOT NULL,
-	FOREIGN KEY (eventId) 
-		REFERENCES event (eventId) 
-		ON DELETE CASCADE,
-	FOREIGN KEY (categoryId) 
-		REFERENCES category (categoryId) 
-		ON DELETE CASCADE
+	FOREIGN KEY (eventId) REFERENCES event (eventId) ON DELETE CASCADE,
+	FOREIGN KEY (categoryId) REFERENCES category (categoryId) ON DELETE CASCADE
 );

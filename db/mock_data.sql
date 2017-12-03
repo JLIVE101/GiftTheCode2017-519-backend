@@ -1479,14 +1479,14 @@ insert into eventCategory (eventId, categoryId, isRelatedCategory) values (108, 
 insert into eventCategory (eventId, categoryId, isRelatedCategory) values (23, 11, true);
 insert into eventCategory (eventId, categoryId, isRelatedCategory) values (168, 10, true);
 
-UPDATE `gtc`.`category` SET `categoryName`='Newcome & Settlement Services' WHERE `categoryId`='1';
-UPDATE `gtc`.`category` SET `categoryName`='Queer and Trans Family Events' WHERE `categoryId`='2';
-UPDATE `gtc`.`category` SET `categoryName`='Family Resource Centre Drop-In Programs' WHERE `categoryId`='3';
-UPDATE `gtc`.`category` SET `categoryName`='Older LGBTQ Drop-In' WHERE `categoryId`='4';
-UPDATE `gtc`.`category` SET `categoryName`='Housing Support for LGBTQ Youth' WHERE `categoryId`='5';
-UPDATE `gtc`.`category` SET `categoryName`='Trans Youth Programs' WHERE `categoryId`='6';
-UPDATE `gtc`.`category` SET `categoryName`='Meal Trans' WHERE `categoryId`='7';
-UPDATE `gtc`.`category` SET `categoryName`='Sunday Drop-In' WHERE `categoryId`='8';
-UPDATE `gtc`.`category` SET `categoryName`='Volunteering at The 519' WHERE `categoryId`='9';
-UPDATE `gtc`.`category` SET `categoryName`='Green Space Festival' WHERE `categoryId`='10';
-UPDATE `gtc`.`category` SET `categoryName`='Special Events at The 519' WHERE `categoryId`='11';
+UPDATE `category` SET `categoryName`='Newcome & Settlement Services' WHERE `categoryId`='1';
+UPDATE `category` SET `categoryName`='Queer and Trans Family Events' WHERE `categoryId`='2';
+UPDATE `category` SET `categoryName`='Family Resource Centre Drop-In Programs' WHERE `categoryId`='3';
+UPDATE `category` SET `categoryName`='Older LGBTQ Drop-In' WHERE `categoryId`='4';
+UPDATE `category` SET `categoryName`='Housing Support for LGBTQ Youth' WHERE `categoryId`='5';
+UPDATE `category` SET `categoryName`='Trans Youth Programs' WHERE `categoryId`='6';
+UPDATE `category` SET `categoryName`='Meal Trans' WHERE `categoryId`='7';
+UPDATE `category` SET `categoryName`='Sunday Drop-In' WHERE `categoryId`='8';
+UPDATE `category` SET `categoryName`='Volunteering at The 519' WHERE `categoryId`='9';
+UPDATE `category` SET `categoryName`='Green Space Festival' WHERE `categoryId`='10';
+UPDATE `category` SET `categoryName`='Special Events at The 519' WHERE `categoryId`='11';
