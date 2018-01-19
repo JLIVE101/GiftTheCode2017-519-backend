@@ -26,3 +26,5 @@ app.use('/api', taskRouter);
 app.listen(port, () => {
   console.log('gtc17 running on port ' + port);
 });
+
+module.exports = app;

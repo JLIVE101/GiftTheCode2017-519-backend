@@ -1,16 +1,13 @@
 {
-    "GOOGLEMAPS_API_KEY": "AIzaSyDdXUdyhCotDMulKQjXXxLVr6eVRNiwt0g",
-    "database": "giftTheCode2017",
-    "username": "root",
-    "password": "MyNewPass",
     "sequelize": {
-        "host": "localhost",
+        "host": "giftthecode519.cqxsv3ucpbpx.ca-central-1.rds.amazonaws.com",
         "dialect": "mysql",
         "pool": {
             "max": 5,
             "min": 0,
             "idle": 10000
-        }
+        },
+        "logging": false
     },
     "tokenSecret": "somethingReallySecret"
 }
